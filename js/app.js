@@ -112,16 +112,13 @@
   // ---------- Фільтри ----------
 
   const BRANDS_VISIBLE = 8;
+  // Літерні розміри показуємо завжди; числові (36, 38…, взуття) — лише в межах обраної категорії
+  const LETTER_SIZES = new Set(['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', 'ONE SIZE']);
   let brandsExpanded = false;
 
   function buildFilters() {
     const minP = Math.min(...ALL.prices), maxP = Math.max(...ALL.prices);
     const groups = [];
-    if (ALL.sizes.length) {
-      groups.push(`<div class="f-group"><h3>Розмір</h3><div class="f-sizes">` +
-        ALL.sizes.map(s => `<button type="button" class="size-btn" data-size="${esc(s)}" aria-pressed="false">${esc(s)}</button>`).join('') +
-        `</div></div>`);
-    }
     groups.push(`<div class="f-group"><h3>Ціна, грн</h3><div class="f-price">
         <label class="f-price-field"><span>від</span><input type="number" inputmode="numeric" id="priceMin" placeholder="${minP}" min="0" aria-label="Ціна від"></label>
         <label class="f-price-field"><span>до</span><input type="number" inputmode="numeric" id="priceMax" placeholder="${maxP}" min="0" aria-label="Ціна до"></label>
@@ -130,6 +127,11 @@
       groups.push(`<div class="f-group"><h3>Категорія</h3>` +
         ALL.categories.map(c => `<label class="f-check"><input type="checkbox" data-category="${esc(c)}"><span>${esc(c)}</span><span class="count" data-count-category="${esc(c)}"></span></label>`).join('') +
         `</div>`);
+    }
+    if (ALL.sizes.length) {
+      groups.push(`<div class="f-group"><h3>Розмір</h3><div class="f-sizes">` +
+        ALL.sizes.map(s => `<button type="button" class="size-btn" data-size="${esc(s)}" aria-pressed="false">${esc(s)}</button>`).join('') +
+        `</div><p class="f-hint" id="sizeHint" hidden>Числові розміри (36, 38, 40…) з'являться, коли оберете категорію</p></div>`);
     }
     if (ALL.brands.length) {
       groups.push(`<div class="f-group"><h3>Бренд</h3>` +
@@ -157,9 +159,13 @@
     body.querySelectorAll('[data-size]').forEach(b => {
       const s = b.dataset.size;
       b.setAttribute('aria-pressed', state.sizes.has(s));
-      b.disabled = !sizeCounts.get(s) && !state.sizes.has(s);
-      b.style.opacity = b.disabled ? .35 : '';
+      const noCategory = !state.categories.size;
+      const visible = state.sizes.has(s) || (sizeCounts.get(s) && (!noCategory || LETTER_SIZES.has(s)));
+      b.hidden = !visible;
     });
+    if ($('sizeHint')) {
+      $('sizeHint').hidden = state.categories.size > 0 || !ALL.sizes.some(s => !LETTER_SIZES.has(s));
+    }
     const catCounts = countBy('category', it => [it.category]);
     body.querySelectorAll('[data-category]').forEach(cb => {
       const c = cb.dataset.category;

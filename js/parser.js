@@ -29,6 +29,22 @@
     'Street One', 'Cecil', 'Opus', 'Comma', 'More & More', 'Marella', 'Sportmax', 'Iceberg',
   ];
 
+  // Як бренди пишуть кирилицею → правильна назва
+  const BRAND_ALIASES = [
+    ['зара', 'Zara'], ['манго', 'Mango'], ['массімо дутті', 'Massimo Dutti'], ['масімо дутті', 'Massimo Dutti'],
+    ['массимо дутти', 'Massimo Dutti'], ['ральф лорен', 'Ralph Lauren'], ['поло ральф лорен', 'Polo Ralph Lauren'],
+    ['хуго босс', 'Hugo Boss'], ['хьюго босс', 'Hugo Boss'], ['бенетон', 'Benetton'], ['беннетон', 'Benetton'],
+    ['томмі хілфігер', 'Tommy Hilfiger'], ['томми хилфигер', 'Tommy Hilfiger'], ['лакост', 'Lacoste'],
+    ['ґант', 'Gant'], ['гант', 'Gant'], ['юніклo', 'Uniqlo'], ['юнікло', 'Uniqlo'], ['макс мара', 'Max Mara'],
+    ['марк о поло', "Marc O'Polo"], ['марко поло', "Marc O'Polo"], ['ескада', 'Escada'], ['барбур', 'Barbour'],
+    ['бербері', 'Burberry'], ['барбері', 'Burberry'], ['кельвін кляйн', 'Calvin Klein'], ['келвін кляйн', 'Calvin Klein'],
+    ['левіс', "Levi's"], ['майкл корс', 'Michael Kors'], ['фурла', 'Furla'], ['гесс', 'Guess'], ['есприт', 'Esprit'],
+    ['еспріт', 'Esprit'], ['гері вебер', 'Gerry Weber'], ['джері вебер', 'Gerry Weber'], ['оспрей', 'Osprey London'],
+    ['некст', 'Next'], ['osprey', 'Osprey London'], ['ресервд', 'Reserved'], ['армані', 'Armani'], ['гуччі', 'Gucci'], ['прада', 'Prada'],
+    ['коуч', 'Coach'], ['лонгшамп', 'Longchamp'], ['ліу джо', 'Liu Jo'], ['пінко', 'Pinko'], ['мангo', 'Mango'],
+    ['маркс енд спенсер', 'Marks & Spencer'], ['маркс і спенсер', 'Marks & Spencer'], ['маркс & спенсер', 'Marks & Spencer'],
+  ];
+
   // Порядок важливий: перша категорія, що збіглася, перемагає
   // (щоб «джинсова куртка» стала курткою, а не джинсами).
   const CATEGORIES = [
@@ -40,9 +56,9 @@
     ['Спідниці', ['спідниц']],
     ['Светри та кардигани', ['светр', 'джемпер', 'кардиган', 'пуловер', 'реглан', 'кофт', 'гольф', 'водолаз', 'худі', 'світшот', 'жилетк']],
     ['Сорочки та блузи', ['сороч', 'блуз']],
-    ['Футболки та топи', ['футболк', 'топ', 'майк', 'лонгслів', 'поло']],
+    ['Футболки та топи', ['футболк', 'топ', 'майк', 'лонгслів', 'поло', 'боді']],
     ['Штани та джинси', ['штан', 'брюк', 'джинс', 'шорт', 'легінс', 'кюлот']],
-    ['Аксесуари', ['шарф', 'хустк', 'палантин', 'ремін', 'ремен', 'пояс', 'рукавич', 'шапк', 'капелюх', 'гаман', 'окуляр', 'біжутер', 'прикрас']],
+    ['Аксесуари', ['шарф', 'хустк', 'палантин', 'ремін', 'ремен', 'пояс', 'рукавич', 'рукавиц', 'картхолдер', 'візитниц', 'косметичк', 'ключниц', 'брелок', 'шапк', 'капелюх', 'гаман', 'окуляр', 'біжутер', 'прикрас']],
   ];
 
   const COLORS = [
@@ -109,19 +125,20 @@
       .replace(/\$/g, 's')
       .replace(/([a-z])0|0([a-z])/gi, (m, a, b) => (a ? a + 'o' : 'o' + b))
       .replace(/([a-z])1|1([a-z])/gi, (m, a, b) => (a ? a + 'i' : 'i' + b))
+      .replace(/([a-z])!(?=[a-z]|\s|$|[.,])/gi, '$1i') // Mass!mo Dutt! → Massimo Dutti
       .replace(/[*_~^]/g, '');
   }
 
   // Кирилиця, схожа на латиницю (буває, що бренд набраний «змішано»)
   const LOOKALIKE = { 'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'х': 'x', 'і': 'i', 'у': 'y', 'к': 'k', 'м': 'm', 'т': 't' };
 
-  function squash(s) {
-    return deobfuscate(s)
+  function squash(s, keepPossessive) {
+    let t = deobfuscate(s)
       .toLowerCase()
       .replace(/[а-яі]/g, ch => LOOKALIKE[ch] || ch)
-      .replace(/ö/g, 'o').replace(/è/g, 'e')
-      .replace(/['’ʼ`]s\b/g, '')
-      .replace(/[^a-z0-9]/g, '');
+      .replace(/ö/g, 'o').replace(/è/g, 'e');
+    if (!keepPossessive) t = t.replace(/['’ʼ`]s\b/g, ''); // hugo bos's → hugo bos
+    return t.replace(/[^a-z0-9]/g, '');                    // CO'S → cos (коли keepPossessive)
   }
 
   function levenshtein(a, b) {
@@ -146,6 +163,12 @@
     return 2;
   }
 
+  // Короткі/альтернативні назви → як показувати на сайті
+  const BRAND_CANON = { 'M&S': 'Marks & Spencer', 'Osprey': 'Osprey London' };
+  BRANDS.push('M&S', 'Osprey', 'F&F', 'Primark', 'Autograph', 'New Look', 'George', 'Paul Costelloe',
+    'Monki', 'Bershka', 'Pull&Bear', 'Stradivarius', 'Oysho', 'Joules', 'Jack Wills');
+  const canon = name => BRAND_CANON[name] || name;
+
   const BRAND_INDEX = Array.from(new Set(BRANDS)).map(name => ({
     name,
     words: name.split(/\s+/).length,
@@ -156,20 +179,35 @@
   function matchBrand(candidate, exactOnly) {
     const words = candidate.trim().split(/\s+/).filter(Boolean);
     let best = null;
-    for (const b of BRAND_INDEX) {
-      if (words.length < b.words) continue;
-      const key = squash(words.slice(0, b.words).join(' '));
-      if (!key) continue;
-      const dist = levenshtein(key, b.key);
-      const limit = exactOnly ? 0 : allowedTypos(b.key.length);
-      if (dist <= limit) {
-        // Перевага — довшим назвам (Polo Ralph Lauren > Ralph Lauren), потім меншій відстані.
-        if (!best || b.words > best.words || (b.words === best.words && dist < best.dist)) {
-          best = { name: b.name, words: b.words, dist };
+    for (let n = 1; n <= Math.min(4, words.length); n++) {
+      const phrase = words.slice(0, n).join(' ');
+      const keys = [...new Set([squash(phrase), squash(phrase, true)])].filter(Boolean);
+      for (const b of BRAND_INDEX) for (const key of keys) {
+        const dist = levenshtein(key, b.key);
+        const limit = exactOnly ? 0 : allowedTypos(b.key.length);
+        if (dist <= limit) {
+          // Перевага — довшим назвам (Polo Ralph Lauren > Ralph Lauren), потім меншій відстані.
+          if (!best || b.key.length > best.len || (b.key.length === best.len && dist < best.dist)) {
+            best = { name: b.name, len: b.key.length, dist };
+          }
         }
       }
     }
     return best;
+  }
+
+  function escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function matchAlias(text) {
+    const low = ' ' + text.toLowerCase().replace(/[’ʼ']/g, '').replace(/\s+/g, ' ') + ' ';
+    let best = null;
+    for (const [alias, name] of BRAND_ALIASES) {
+      const re = new RegExp('(^|[^' + L + '])' + escapeRe(alias) + '(?=$|[^' + L + '])', 'i');
+      if (re.test(low) && (!best || alias.length > best.alias.length)) best = { alias, name };
+    }
+    return best ? best.name : null;
   }
 
   function titleCase(s) {
@@ -217,6 +255,7 @@
       for (let t of tokens) {
         t = t.replace(/[^A-Z0-9]/g, '');
         if (t === 'XXXL') t = '3XL';
+        if (t === '2XL') t = 'XXL';
         if (/^(XXS|XS|S|M|L|XL|XXL|[2-5]XL)$/.test(t) || /^\d{2}$/.test(t) || /^W\d{2}$/.test(t)) {
           if (!out.includes(t)) out.push(t);
         }
@@ -228,20 +267,30 @@
 
   function parseBrand(firstLine) {
     // «… від R@lph L@uren.», «… від бренду Osp*rey London у …»
-    const m = firstLine.match(/(?:^|\s)від\s+(?:бренду\s+|фірми\s+|марки\s+)?(.+?)(?=[.,!?;:(\n]|\s(?:у|в|з|із|зі|та|і|на|для|розмір)\s|$)/i);
+    // «від (італійського люксового) бренду Max Mar@» — прикметники перед «бренду» пропускаємо
+    const m = firstLine.match(/(?:^|\s)від\s+(?:(?:[а-яіїєґʼ'’-]+\s+){0,4}?(?:бренду|фірми|марки|лінійки|виробника|дизайнера)\s+)?(.+?)(?=[.,?;:(\n]|!(?:\s|$)|\s(?:у|в|з|із|зі|та|і|на|для|розмір)\s|$)/i);
     if (m) {
       const candidate = m[1].trim();
       const hit = matchBrand(candidate, false);
-      if (hit) return hit.name;
-      const clean = deobfuscate(candidate).replace(/['’ʼ`]s$/i, '').trim();
-      if (/[a-z]/i.test(clean)) return titleCase(clean.split(/\s+/).slice(0, 3).join(' '));
+      if (hit) return canon(hit.name);
+      // Невідомий бренд: лише слова латиницею на початку («Paul Costel'loe виконаний…» → «Paul Costel'loe»)
+      const latin = [];
+      for (const w of deobfuscate(candidate).split(/\s+/)) {
+        if (/[а-яіїєґ]/i.test(w) || !/[a-z0-9]/i.test(w)) break;
+        latin.push(w);
+      }
+      const clean = latin.slice(0, 3).join(' ').replace(/['’ʼ`]s$/i, '').trim();
+      if (clean.length >= 2) return titleCase(clean);
     }
+    // Бренд кирилицею («від Зара»)
+    const alias = matchAlias(firstLine);
+    if (alias) return canon(alias);
     // Запасний варіант: бренд просто згаданий у першому рядку латиницею («Сукня Zara»)
     const words = firstLine.split(/\s+/);
     for (let i = 0; i < words.length; i++) {
       if (!/[a-z@*$]/i.test(words[i])) continue;
       const hit = matchBrand(words.slice(i).join(' '), true);
-      if (hit) return hit.name;
+      if (hit) return canon(hit.name);
     }
     return null;
   }

@@ -363,3 +363,5 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 @media (min-width: 861px) {
   .categories { flex-wrap: wrap; overflow: visible; }
 }
+
+.f-hint { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
