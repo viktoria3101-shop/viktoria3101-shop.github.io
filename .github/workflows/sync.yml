@@ -31,7 +31,8 @@ jobs:
 
       - name: Встановити залежності
         working-directory: scripts
-        run: npm install --no-audit --no-fund
+        # npm ci ставить рівно те, що в package-lock.json, і не змінює його
+        run: npm ci --no-audit --no-fund
 
       - name: Забрати пости з Instagram
         env:
@@ -50,8 +51,10 @@ jobs:
             exit 0
           fi
           git commit -q -m "Оновлення каталогу з Instagram"
+          git checkout -- . 2>/dev/null || true   # інші випадкові зміни (не data/) не зберігаємо
           for i in 1 2 3; do
-            git pull --rebase -q && git push -q && exit 0
+            git pull --rebase --autostash -q && git push -q && exit 0
+            git status --short | head -20
             sleep 5
           done
           exit 1
