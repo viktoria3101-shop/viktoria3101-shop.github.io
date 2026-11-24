@@ -473,6 +473,7 @@
         : 'Не вдалося скопіювати — перепишіть текст вручну'));
     };
     $('pPost').href = it.permalink || PROFILE_URL;
+    $('saleNow').hidden = !it.isSale;
     syncCartButton(it);
     if (it.isSale) updateSaleSlide(0);
 
@@ -480,11 +481,7 @@
     const track = $('gTrack');
     track.innerHTML = it.images.map((src, i) => {
       const st = it.isSale && it.slideState ? it.slideState[i] : null;
-      const badge = !st || st.kind === 'cover' ? ''
-        : st.kind === 'sold' ? `<span class="g-item sold">Продано</span>`
-        : st.kind === 'linked' ? `<a class="g-item" href="#p=${encodeURIComponent(st.linked.id)}">Ця річ окремо →</a>`
-        // окремого поста не знайдено і в підписі не позначено — можливо, вже продано
-        : `<span class="g-item ask">Уточніть наявність</span>`;
+      const badge = st && st.kind === 'sold' ? `<span class="g-item sold">Продано</span>` : '';
       return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i ? 'lazy' : 'eager'}">${badge}</div>`;
     }).join('');
     track.scrollLeft = 0;
@@ -517,6 +514,26 @@
     $('pWriteLabel').textContent = sold ? `Фото №${i + 1} уже продано` : 'Скопіювати текст і написати';
     currentMsg = dmMessage(it, i);
     $('pMsg').textContent = sold ? `Річ на фото №${i + 1} уже продано — гортайте далі 🙂` : currentMsg;
+
+    // Блок «що на цьому фото»
+    const total = it.images.length;
+    const box = $('saleNow');
+    box.hidden = false;
+    if (!st || st.kind === 'cover') {
+      box.innerHTML = `<p class="sale-now-hint">Гортайте фото — тут буде видно, що це за річ, а кнопками нижче її можна купити.</p>`;
+    } else if (sold) {
+      box.innerHTML = `<p class="sale-now-head">Фото ${i + 1} з ${total} · <span class="sale-now-sold">уже продано</span></p>
+        <p class="sale-now-hint">Гортайте далі 🙂</p>`;
+    } else if (st.kind === 'linked') {
+      const l = st.linked;
+      box.innerHTML = `<p class="sale-now-head">Фото ${i + 1} з ${total} · ${money(it.price)}</p>
+        <p class="sale-now-item">${esc([l.title, l.brand].filter(Boolean).join(' '))}${l.sizes.length ? `, розмір ${esc(l.sizes.join('/'))}` : ''}</p>
+        <a class="sale-now-more" href="#p=${encodeURIComponent(l.id)}">Заміри й усі фото цієї речі →</a>`;
+    } else {
+      box.innerHTML = `<p class="sale-now-head">Фото ${i + 1} з ${total} · ${money(it.price)}</p>
+        <p class="sale-now-hint">Розмір і заміри уточнимо в директі.</p>`;
+    }
+    syncCartButton(it);
   }
 
   function dmMessage(it, photo) {
@@ -524,7 +541,10 @@
       return `Вітаю! Мене цікавить розпродаж${it.price != null ? ' по ' + money(it.price) : ''}` + (it.permalink ? `\n${it.permalink}` : '');
     }
     if (it.isSale) {
-      return `Вітаю! Мене цікавить річ із розпродажу${it.price != null ? ' по ' + money(it.price) : ''} — фото №${photo + 1}` +
+      const st = it.slideState && it.slideState[photo];
+      const l = st && st.kind === 'linked' ? st.linked : null;
+      const what = l ? ` (${[l.title, l.brand].filter(Boolean).join(' ')}${l.sizes.length ? ', ' + l.sizes.join('/') : ''})` : '';
+      return `Вітаю! Мене цікавить річ із розпродажу${it.price != null ? ' по ' + money(it.price) : ''} — фото №${photo + 1}${what}` +
         (it.permalink ? `
 ${it.permalink}` : '');
     }
@@ -615,13 +635,28 @@ ${it.permalink}` : '');
   // кошик лише збирає кілька речей в одне повідомлення в директ.
 
   const CART_KEY = 'cart:v1';
+  function resolveCartItem(id) {
+    if (byId.has(id)) return byId.get(id);
+    const m = /^(.+)#(\d+)$/.exec(id);
+    const s = m && byId.get(m[1]);
+    if (!s || !s.isSale) return null;
+    const n = +m[2];
+    const st = s.slideState && s.slideState[n - 1];
+    if (!st) return null;
+    return {
+      id, virtual: true, saleId: s.id, photo: n,
+      title: `Річ із розпродажу — фото №${n}`, brand: null, sizes: [],
+      price: s.price, oldPrice: null, thumb: s.images[n - 1], permalink: s.permalink,
+      status: st.kind === 'sold' ? 'sold' : 'available',
+    };
+  }
   let cart = [];
   try {
-    cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]').map(String).filter(id => byId.has(id));
+    cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]').map(String).filter(id => resolveCartItem(id));
   } catch (e) { cart = []; }
   const saveCart = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { /* без збереження */ } };
   const inCart = id => cart.includes(id);
-  const cartItems = () => cart.map(id => byId.get(id)).filter(Boolean);
+  const cartItems = () => cart.map(resolveCartItem).filter(Boolean);
   const cartAvailable = () => cartItems().filter(it => it.status !== 'sold');
   const cartSum = () => cartAvailable().reduce((s, it) => s + (it.price || 0), 0);
 
@@ -646,18 +681,30 @@ ${it.permalink}` : '');
     updateCartBadge();
   }
 
+  // Що саме додаємо в кошик: звичайну річ або річ на поточному фото розпродажу
+  function cartIdFor(it) {
+    if (!it.isSale) return it.status === 'sold' ? null : it.id;
+    const st = it.slideState && it.slideState[currentPhoto];
+    if (!st || st.kind === 'cover' || st.kind === 'sold') return null;
+    return st.kind === 'linked' ? st.linked.id : `${it.id}#${currentPhoto + 1}`;
+  }
+
   function syncCartButton(it) {
     const b = $('pCart');
-    b.hidden = it.status === 'sold' || it.isSale; // продане й дописи-розпродажі в кошик не додаються
-    const on = inCart(it.id);
+    const id = cartIdFor(it);
+    b.hidden = !id;
+    if (!id) return;
+    const on = inCart(id);
     b.classList.toggle('on', on);
     b.querySelector('span').textContent = on ? 'У кошику ✓ (прибрати)' : 'Додати в кошик';
   }
 
   $('pCart').addEventListener('click', () => {
     if (!currentItem) return;
-    const was = inCart(currentItem.id);
-    toggleCart(currentItem.id);
+    const id = cartIdFor(currentItem);
+    if (!id) return;
+    const was = inCart(id);
+    toggleCart(id);
     syncCartButton(currentItem);
     toast(was ? 'Прибрано з кошика' : `Додано в кошик (${cart.length}). Оберіть ще або відкрийте кошик`);
   });
@@ -704,7 +751,13 @@ ${it.permalink}` : '');
     if (open) {
       e.preventDefault();
       cartDlg.close();
-      location.hash = '#p=' + encodeURIComponent(open.dataset.open);
+      const v = resolveCartItem(open.dataset.open);
+      if (v && v.virtual) {
+        location.hash = '#p=' + encodeURIComponent(v.saleId);
+        setTimeout(() => { const t = $('gTrack'); t.scrollLeft = (v.photo - 1) * t.clientWidth; }, 350);
+      } else {
+        location.hash = '#p=' + encodeURIComponent(open.dataset.open);
+      }
     }
   });
   $('cartClear').addEventListener('click', () => {
