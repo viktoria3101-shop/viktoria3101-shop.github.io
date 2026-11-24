@@ -453,6 +453,7 @@
         : 'Не вдалося скопіювати — перепишіть текст вручну'));
     };
     $('pPost').href = it.permalink || PROFILE_URL;
+    syncCartButton(it);
 
     // Галерея
     const track = $('gTrack');
@@ -560,6 +561,9 @@ ${it.permalink}` : '');
   let toastTimer;
   function toast(msg) {
     const t = $('toast');
+    // Показуємо поверх того вікна, що зараз відкрите (кошик або картка товару)
+    const host = [$('cart'), dlg].find(d => d.open) || document.body;
+    if (t.parentNode !== host) host.appendChild(t);
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
@@ -569,8 +573,120 @@ ${it.permalink}` : '');
   // На телефоні посилання на Instagram відкриваємо в тій самій вкладці: застосунок Instagram
   // перехоплює їх сам, а з target="_blank" Chrome на Android лишає порожні вкладки.
   if (window.matchMedia('(pointer: coarse)').matches) {
-    ['pWrite', 'pWritePlain', 'pPost', 'gMore', 'igProfile'].forEach(id => $(id) && $(id).removeAttribute('target'));
+    ['pWrite', 'pWritePlain', 'pPost', 'gMore', 'igProfile', 'cartWrite'].forEach(id => $(id) && $(id).removeAttribute('target'));
   }
+
+  // ---------- Кошик ----------
+  // Зберігається в браузері покупця (localStorage). Оплати на сайті немає —
+  // кошик лише збирає кілька речей в одне повідомлення в директ.
+
+  const CART_KEY = 'cart:v1';
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]').map(String).filter(id => byId.has(id));
+  } catch (e) { cart = []; }
+  const saveCart = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { /* без збереження */ } };
+  const inCart = id => cart.includes(id);
+  const cartItems = () => cart.map(id => byId.get(id)).filter(Boolean);
+  const cartAvailable = () => cartItems().filter(it => it.status !== 'sold');
+  const cartSum = () => cartAvailable().reduce((s, it) => s + (it.price || 0), 0);
+
+  function cartMessage() {
+    const lines = cartAvailable().map((it, i) =>
+      `${i + 1}. ${[it.title, it.brand].filter(Boolean).join(' ')}${it.sizes.length ? ', ' + it.sizes.join('/') : ''} — ${money(it.price)}` +
+      (it.permalink ? `\n${it.permalink}` : ''));
+    return `Вітаю! Хочу замовити:\n${lines.join('\n')}\nРазом: ${money(cartSum())}`;
+  }
+
+  function updateCartBadge() {
+    $('cartCount').hidden = !cart.length;
+    $('cartCount').textContent = cart.length;
+    const go = $('pGoCart');
+    go.hidden = !cart.length;
+    go.textContent = `Перейти в кошик (${cart.length}) →`;
+  }
+
+  function toggleCart(id) {
+    cart = inCart(id) ? cart.filter(x => x !== id) : cart.concat(id);
+    saveCart();
+    updateCartBadge();
+  }
+
+  function syncCartButton(it) {
+    const b = $('pCart');
+    b.hidden = it.status === 'sold' || it.isSale; // продане й дописи-розпродажі в кошик не додаються
+    const on = inCart(it.id);
+    b.classList.toggle('on', on);
+    b.querySelector('span').textContent = on ? 'У кошику ✓ (прибрати)' : 'Додати в кошик';
+  }
+
+  $('pCart').addEventListener('click', () => {
+    if (!currentItem) return;
+    const was = inCart(currentItem.id);
+    toggleCart(currentItem.id);
+    syncCartButton(currentItem);
+    toast(was ? 'Прибрано з кошика' : `Додано в кошик (${cart.length}). Оберіть ще або відкрийте кошик`);
+  });
+
+  const cartDlg = $('cart');
+  function renderCart() {
+    const items = cartItems();
+    const avail = cartAvailable();
+    $('cartTitle').textContent = items.length ? `Кошик (${items.length})` : 'Кошик';
+    $('cartList').innerHTML = items.map(it => `<li class="cart-item${it.status === 'sold' ? ' is-sold' : ''}">
+        <a class="cart-thumb" href="#p=${encodeURIComponent(it.id)}" data-open="${esc(it.id)}">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ''}</a>
+        <div class="cart-info">
+          <a class="cart-title" href="#p=${encodeURIComponent(it.id)}" data-open="${esc(it.id)}">${esc(it.title)}</a>
+          <p class="cart-meta">${[it.brand, it.sizes.join('/')].filter(Boolean).map(esc).join(' · ')}</p>
+          <p class="cart-price">${it.status === 'sold' ? 'Уже продано' : (it.oldPrice ? `<s class="old-price">${money(it.oldPrice)}</s> ` : '') + money(it.price)}</p>
+        </div>
+        <button type="button" class="icon-btn" data-remove="${esc(it.id)}" aria-label="Прибрати з кошика">✕</button>
+      </li>`).join('');
+    $('cartEmpty').hidden = items.length > 0;
+    for (const id of ['cartSumWrap', 'cartMsgWrap', 'cartWrite']) $(id).hidden = !avail.length;
+    $('cartClear').hidden = !items.length;
+    $('cartSum').textContent = money(cartSum());
+    $('cartMsg').textContent = avail.length ? cartMessage() : '';
+  }
+
+  $('cartBtn').addEventListener('click', () => {
+    renderCart();
+    cartDlg.showModal();
+    document.body.style.overflow = 'hidden';
+  });
+  $('pGoCart').addEventListener('click', () => { renderCart(); cartDlg.showModal(); });
+  $('closeCart').addEventListener('click', () => cartDlg.close());
+  cartDlg.addEventListener('click', e => { if (e.target === cartDlg) cartDlg.close(); });
+  cartDlg.addEventListener('close', () => { if (!dlg.open) document.body.style.overflow = ''; });
+  $('cartList').addEventListener('click', e => {
+    const rm = e.target.closest('[data-remove]');
+    if (rm) {
+      toggleCart(rm.dataset.remove);
+      renderCart();
+      if (currentItem && dlg.open) syncCartButton(currentItem);
+      return;
+    }
+    const open = e.target.closest('[data-open]');
+    if (open) {
+      e.preventDefault();
+      cartDlg.close();
+      location.hash = '#p=' + encodeURIComponent(open.dataset.open);
+    }
+  });
+  $('cartClear').addEventListener('click', () => {
+    cart = [];
+    saveCart();
+    updateCartBadge();
+    renderCart();
+    if (currentItem && dlg.open) syncCartButton(currentItem);
+  });
+  $('cartWrite').href = DM_URL;
+  $('cartWrite').addEventListener('click', () => {
+    copyText(cartMessage()).then(ok => toast(ok
+      ? 'Список скопійовано ✓ Вставте його в чат'
+      : 'Не вдалося скопіювати — перепишіть текст вручну'));
+  });
+  updateCartBadge();
 
   // ---------- Старт ----------
 

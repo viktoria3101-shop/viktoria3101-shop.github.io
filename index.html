@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=22">
   <script>
     // Застосовуємо збережену тему ще до показу сторінки (щоб не «блимало»)
     try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -26,6 +26,10 @@
         <span class="logo-sub" id="shopSub">Брендовий секонд-хенд · Київ</span>
       </a>
       <div class="header-actions">
+        <button type="button" class="theme-btn cart-btn" id="cartBtn" aria-label="Кошик" title="Кошик">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+          <span class="cart-count" id="cartCount" hidden>0</span>
+        </button>
         <button type="button" class="theme-btn" id="themeBtn" aria-label="Змінити тему" title="Світла / темна тема">
           <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>
           <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
@@ -141,6 +145,11 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
             <span id="pWriteLabel">Скопіювати текст і написати</span>
           </a>
+          <button type="button" class="btn ghost big cart-add" id="pCart">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+            <span>Додати в кошик</span>
+          </button>
+          <button type="button" class="p-go-cart" id="pGoCart" hidden></button>
           <a class="p-plain-link" id="pWritePlain" href="#" target="_blank" rel="noopener">Написати без копіювання</a>
         </div>
         <dl class="p-shipping">
@@ -163,10 +172,35 @@
     </div>
   </dialog>
 
+  <dialog class="cart" id="cart" aria-labelledby="cartTitle">
+    <div class="cart-head">
+      <h2 id="cartTitle">Кошик</h2>
+      <button type="button" class="icon-btn" id="closeCart" aria-label="Закрити">✕</button>
+    </div>
+    <div class="cart-body">
+      <p class="cart-empty" id="cartEmpty">Кошик порожній. Додавайте речі кнопкою «Додати в кошик» у картці товару.</p>
+      <ul class="cart-list" id="cartList"></ul>
+      <div class="cart-sum" id="cartSumWrap"><span>Разом</span><strong id="cartSum"></strong></div>
+      <div class="p-msg" id="cartMsgWrap">
+        <p class="p-msg-label">Текст для продавця</p>
+        <p class="p-msg-text" id="cartMsg"></p>
+        <p class="p-msg-hint">Кнопка нижче скопіює список і відкриє директ магазину. У чаті натисніть і потримайте поле для повідомлення, оберіть «Вставити» і надішліть.</p>
+      </div>
+    </div>
+    <div class="cart-foot">
+      <a class="btn primary big" id="cartWrite" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+        <span>Скопіювати список і написати</span>
+      </a>
+      <p class="cart-note">Оплата на сайті не потрібна: наявність і доставку підтвердимо в директі, потім — переказ на картку.</p>
+      <button type="button" class="cart-clear" id="cartClear">Очистити кошик</button>
+    </div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/posts.js?v=21"></script>
-  <script src="js/parser.js?v=21"></script>
-  <script src="js/app.js?v=21"></script>
+  <script src="data/posts.js?v=22"></script>
+  <script src="js/parser.js?v=22"></script>
+  <script src="js/app.js?v=22"></script>
 </body>
 </html>
