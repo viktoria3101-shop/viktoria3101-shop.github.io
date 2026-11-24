@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T16:50:52.198Z",
-  "finishedAt": "2026-11-24T16:51:52.009Z",
+  "startedAt": "2026-11-24T17:18:29.825Z",
+  "finishedAt": "2026-11-24T17:19:44.731Z",
   "ok": true,
   "error": null,
   "account": {
@@ -16,11 +16,11 @@
     "skippedNoPrice": 26
   },
   "images": {
-    "downloaded": 0,
+    "downloaded": 89,
     "reused": 12806,
     "failed": 0,
     "removedDirs": 0,
-    "totalMB": 671
+    "totalMB": 675
   },
   "issues": {
     "noPrice": [
@@ -717,8 +717,6 @@
       "https://www.instagram.com/p/C1hZhWxtWMK/"
     ],
     "otherCategory": [
-      "https://www.instagram.com/p/DZ7kTOtDFXH/",
-      "https://www.instagram.com/p/DZehyYkDBYs/",
       "https://www.instagram.com/p/DZaZU5KjAHA/",
       "https://www.instagram.com/p/DY46A8HDPZ8/",
       "https://www.instagram.com/p/DO2wDU5jIFE/",
@@ -731,5 +729,838 @@
       "https://www.instagram.com/p/C6WLuu-NdpK/",
       "https://www.instagram.com/p/C22TSe5IB27/"
     ]
-  }
+  },
+  "sales": [
+    {
+      "post": "https://www.instagram.com/p/DY6U7sIjJv4/",
+      "price": 200,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/DGx60c9Niwb/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/C65mtRVtMgd/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 6,
+          "post": "https://www.instagram.com/p/C74n_HrtnvE/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/DFQPScPN-9T/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/C8Z0leBt7KT/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C5nDsymoc5r/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/DBqRIdwNVRV/",
+          "oldPrice": 380,
+          "status": "available"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/DJJe7ZOt8Vp/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/DKHfOsYNQb6/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 14,
+          "post": "https://www.instagram.com/p/DKGxF4aM2re/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/DK1HJcZtdOb/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/DK1KgRwNoXz/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/DbGsV1VEZCj/",
+          "oldPrice": 300,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        2,
+        5,
+        11,
+        15,
+        16,
+        19
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DZRgskhjPZx/",
+      "price": 100,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/C8SPjqQtVS-/",
+          "oldPrice": 140,
+          "status": "available"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/C8Kkb1YtMs6/",
+          "oldPrice": 150,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C7g9wIQt4UU/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C5nLApdo2wN/",
+          "oldPrice": 170,
+          "status": "available"
+        },
+        {
+          "photo": 11,
+          "post": "https://www.instagram.com/p/C6BXA9hot6a/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C-7jWiSN8R7/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/DHY5EMoN7dD/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/DI07z6XtBMA/",
+          "oldPrice": 250,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        2,
+        3,
+        4,
+        6,
+        8,
+        12,
+        14,
+        15,
+        17,
+        18,
+        20
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DZedYSTDGuL/",
+      "price": 100,
+      "photos": 19,
+      "matched": [
+        {
+          "photo": 2,
+          "post": "https://www.instagram.com/p/C2VD4yzouJ_/",
+          "oldPrice": 160,
+          "status": "available"
+        },
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/C3idiVKNGvl/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/C3w5OzXNsTB/",
+          "oldPrice": 260,
+          "status": "available"
+        },
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/C30EtOENwqx/",
+          "oldPrice": 150,
+          "status": "available"
+        },
+        {
+          "photo": 6,
+          "post": "https://www.instagram.com/p/C4GI_kXNMvC/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/C4TeWsONPW7/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C2raRO2g8Ck/",
+          "oldPrice": 180,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C3m9JmsNIRK/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 11,
+          "post": "https://www.instagram.com/p/C4A5U1aNeWV/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/C6Nm-XWtDkK/",
+          "oldPrice": 270,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C6VkL5etpYY/",
+          "oldPrice": 160,
+          "status": "available"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/C8T-5xQtpKg/",
+          "oldPrice": 120,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C_LidIBtSPD/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/C2wmwWPAMaR/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/C3Yb9xXNkcg/",
+          "oldPrice": 200,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        8,
+        14,
+        18
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DZehyYkDBYs/",
+      "price": 150,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 2,
+          "post": "https://www.instagram.com/p/C2wn54Cg0lG/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/C3aU4RDNhP6/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/C3gCC0Ptm87/",
+          "oldPrice": 400,
+          "status": "available"
+        },
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/C1-G9Qpofhh/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/C6VhsFstv_w/",
+          "oldPrice": 290,
+          "status": "available"
+        },
+        {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/C7wJOX4NTFP/",
+          "oldPrice": 290,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C4BAa7DN-1H/",
+          "oldPrice": 260,
+          "status": "available"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/C27KGwXIm0v/",
+          "oldPrice": 250,
+          "status": "sold"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C3u6PWatGog/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 14,
+          "post": "https://www.instagram.com/p/C4GHqr2tnS_/",
+          "oldPrice": 290,
+          "status": "available"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/C8PMOKjtfdl/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C8Q_BkztbQr/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/C6rJpnaIvhS/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/DJJe7ZOt8Vp/",
+          "oldPrice": 300,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        6,
+        9,
+        11,
+        18,
+        20
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DZsUpRWDOSa/",
+      "price": 80,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 2,
+          "post": "https://www.instagram.com/p/DITZwnMNme8/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/DKG5KVFN0Cp/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/DI85ne0NlFv/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 6,
+          "post": "https://www.instagram.com/p/C9uyDnrNGL1/",
+          "oldPrice": 100,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C4GI_kXNMvC/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C6WNAsaNSVq/",
+          "oldPrice": 160,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C6i7mv6tEKR/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/C3w5OzXNsTB/",
+          "oldPrice": 260,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C8cCPc3NFUG/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/DIlbItutloo/",
+          "oldPrice": 150,
+          "status": "available"
+        },
+        {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/C3m9JmsNIRK/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/C2wmwWPAMaR/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/DJgiAgvt9IJ/",
+          "oldPrice": 300,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        4,
+        7,
+        8,
+        11,
+        12,
+        14
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DZ7kTOtDFXH/",
+      "price": 100,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/C2raRO2g8Ck/",
+          "oldPrice": 180,
+          "status": "available"
+        },
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/DEab-6XNp5f/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/C2Xs6jIocaX/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/C50eRIfo_xw/",
+          "oldPrice": 180,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C7mA8qBNF71/",
+          "oldPrice": 180,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C8Bhi6Utvry/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/C8KcAEtt-rW/",
+          "oldPrice": 240,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C-5avK0NU-P/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/C6BacvOoWLd/",
+          "oldPrice": 190,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C4BQmoIN7go/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/C4F3FbHt9p0/",
+          "oldPrice": 260,
+          "status": "available"
+        },
+        {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/C4au8tUN105/",
+          "oldPrice": 190,
+          "status": "sold"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/C6TjEA9NHkF/",
+          "oldPrice": 200,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/C9Z49t_NyFf/",
+          "oldPrice": 180,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        2,
+        3,
+        6,
+        11,
+        14
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/Dd0iOWBjPZd/",
+      "price": 200,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C_lM9UutG1a/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 11,
+          "post": "https://www.instagram.com/p/DAgBUqxNu61/",
+          "oldPrice": 300,
+          "status": "sold"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/C_7XbPCt7bL/",
+          "oldPrice": 390,
+          "status": "available"
+        },
+        {
+          "photo": 14,
+          "post": "https://www.instagram.com/p/DAkl2lXt4tS/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/C-5E1ZKougt/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C-U_FgQNN45/",
+          "oldPrice": 320,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/DBqIZ52Ndox/",
+          "oldPrice": 400,
+          "status": "available"
+        },
+        {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/DPRjapiDDbF/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/DCMNsjUNmq7/",
+          "oldPrice": 380,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/DPCLVH2DMJH/",
+          "oldPrice": 300,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        13
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DeqlVlNDG50/",
+      "price": 200,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 2,
+          "post": "https://www.instagram.com/p/C_pVHsaNNnB/",
+          "oldPrice": 250,
+          "status": "sold"
+        },
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/C9HFpeoNhd-/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/DDWdcleNNik/",
+          "oldPrice": 280,
+          "status": "sold"
+        },
+        {
+          "photo": 7,
+          "post": "https://www.instagram.com/p/DAgBUqxNu61/",
+          "oldPrice": 300,
+          "status": "sold"
+        },
+        {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/C_7XbPCt7bL/",
+          "oldPrice": 390,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/DCOKB0Mta_o/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/DQUp8BfDO-P/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/C-5avK0NU-P/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 14,
+          "post": "https://www.instagram.com/p/DDZtFo7NXuh/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/DO6UOVkDGi6/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/DP4DUO2DB8e/",
+          "oldPrice": 250,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/DQ7MTVFjAuC/",
+          "oldPrice": 350,
+          "status": "sold"
+        }
+      ],
+      "unmatched": [
+        5,
+        6,
+        11,
+        12,
+        15,
+        18,
+        19
+      ]
+    },
+    {
+      "post": "https://www.instagram.com/p/DfwO33Xka84/",
+      "price": 200,
+      "photos": 20,
+      "matched": [
+        {
+          "photo": 2,
+          "post": "https://www.instagram.com/p/DPErmqEDDz5/",
+          "oldPrice": 250,
+          "status": "sold"
+        },
+        {
+          "photo": 3,
+          "post": "https://www.instagram.com/p/DQXCQGzjMmZ/",
+          "oldPrice": 300,
+          "status": "sold"
+        },
+        {
+          "photo": 4,
+          "post": "https://www.instagram.com/p/DRID8GTDMrG/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 5,
+          "post": "https://www.instagram.com/p/DSc0fubDB9f/",
+          "oldPrice": 380,
+          "status": "available"
+        },
+        {
+          "photo": 6,
+          "post": "https://www.instagram.com/p/C4BXrHNNhEC/",
+          "oldPrice": 260,
+          "status": "available"
+        },
+        {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/DBEf7J1N5dz/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 9,
+          "post": "https://www.instagram.com/p/C_QXy6bNFqt/",
+          "oldPrice": 480,
+          "status": "available"
+        },
+        {
+          "photo": 10,
+          "post": "https://www.instagram.com/p/C_gPXxBN0Y_/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 12,
+          "post": "https://www.instagram.com/p/DNYHG32ME9B/",
+          "oldPrice": 350,
+          "status": "available"
+        },
+        {
+          "photo": 13,
+          "post": "https://www.instagram.com/p/DUgAKW0DKX7/",
+          "oldPrice": 500,
+          "status": "sold"
+        },
+        {
+          "photo": 14,
+          "post": "https://www.instagram.com/p/DEknHPZNeOh/",
+          "oldPrice": 270,
+          "status": "sold"
+        },
+        {
+          "photo": 15,
+          "post": "https://www.instagram.com/p/DCzFkFzt3VD/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 16,
+          "post": "https://www.instagram.com/p/C96wo_ntLk-/",
+          "oldPrice": 280,
+          "status": "sold"
+        },
+        {
+          "photo": 17,
+          "post": "https://www.instagram.com/p/C_qJ50Itjck/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/DQmrgoYDFEp/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
+          "photo": 19,
+          "post": "https://www.instagram.com/p/DSSshg5jJ4k/",
+          "oldPrice": 380,
+          "status": "available"
+        },
+        {
+          "photo": 20,
+          "post": "https://www.instagram.com/p/DBB8Fx_tuB2/",
+          "oldPrice": 350,
+          "status": "available"
+        }
+      ],
+      "unmatched": [
+        7,
+        11
+      ]
+    }
+  ]
 }
