@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T17:18:29.825Z",
-  "finishedAt": "2026-11-24T17:19:44.731Z",
+  "startedAt": "2026-11-24T17:52:46.061Z",
+  "finishedAt": "2026-11-24T17:53:47.946Z",
   "ok": true,
   "error": null,
   "account": {
@@ -16,8 +16,8 @@
     "skippedNoPrice": 26
   },
   "images": {
-    "downloaded": 89,
-    "reused": 12806,
+    "downloaded": 0,
+    "reused": 12895,
     "failed": 0,
     "removedDirs": 0,
     "totalMB": 675
