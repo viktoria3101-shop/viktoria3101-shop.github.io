@@ -482,7 +482,9 @@
     track.innerHTML = it.images.map((src, i) => {
       const st = it.isSale && it.slideState ? it.slideState[i] : null;
       const badge = st && st.kind === 'sold' ? `<span class="g-item sold">Продано</span>` : '';
-      return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i ? 'lazy' : 'eager'}">${badge}</div>`;
+      // Перше фото: поки вантажиться чітке, видно мініатюру з каталогу (вона вже в кеші) — без чорного квадрата
+      const ph = i === 0 && it.thumb ? ` style="background:url('${esc(it.thumb)}') center/contain no-repeat"` : '';
+      return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async"${ph}>${badge}</div>`;
     }).join('');
     track.scrollLeft = 0;
     const many = it.images.length > 1;
