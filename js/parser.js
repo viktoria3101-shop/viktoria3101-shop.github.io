@@ -412,6 +412,7 @@
       hashtags,
       images: post.media || [],
       thumb: post.thumb || (post.media || [])[0] || null,
+      photoCount: post.photoCount || (post.media || []).length,
       permalink: post.permalink || null,
       timestamp: post.timestamp || null,
       caption,

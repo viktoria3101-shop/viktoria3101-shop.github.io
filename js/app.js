@@ -284,7 +284,7 @@
   function cardHTML(it) {
     const tag = it.status === 'sold' ? '<span class="tag sold">Продано</span>'
       : it.status === 'reserved' ? '<span class="tag reserved">Заброньовано</span>' : '';
-    const photos = it.images.length > 1 ? `<span class="tag photos">${it.images.length} фото</span>` : '';
+    const photos = it.photoCount > 1 && it.status !== 'sold' ? `<span class="tag photos">${it.photoCount} фото</span>` : '';
     const img = it.thumb
       ? `<img src="${esc(it.thumb)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`
       : '';
@@ -407,6 +407,12 @@
     const many = it.images.length > 1;
     $('gPrev').hidden = $('gNext').hidden = !many;
     $('gDots').innerHTML = many ? it.images.map((_, i) => `<span class="${i ? '' : 'on'}"></span>`).join('') : '';
+    // Якщо в пості Instagram фото більше, ніж на сайті — підказка з посиланням на пост
+    const extra = (it.photoCount || 0) - it.images.length;
+    const more = $('gMore');
+    more.hidden = extra <= 0;
+    more.textContent = `+${extra} фото в Instagram →`;
+    more.href = it.permalink || PROFILE_URL;
 
     if (!dlg.open) dlg.showModal();
     document.body.style.overflow = 'hidden';

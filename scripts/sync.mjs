@@ -30,7 +30,7 @@ const DATA_DIR = path.join(ROOT, 'data');
 // Номер у назві папки: якщо змінити розміри/якість, достатньо збільшити його — фото перегенеруються.
 const IMG_VERSION = 'p2';
 const IMG_DIR = path.join(DATA_DIR, 'img', IMG_VERSION);
-const MAX_PHOTOS = 8;       // максимум фото з однієї каруселі (решта — в пості Instagram)
+const MAX_PHOTOS = 10;      // максимум фото з однієї каруселі (решта — в пості Instagram)
 const FULL_WIDTH = 960;     // фото в картці товару
 const FULL_QUALITY = 72;
 const THUMB_WIDTH = 480;    // фото в сітці каталогу
@@ -158,7 +158,7 @@ async function main() {
       if (parsed.category === 'Інше') report.issues.otherCategory.push(m.permalink);
     }
     const keep = parsed.status === 'sold' ? 1 : MAX_PHOTOS;
-    products.push({ m, parsed, urls: urls.slice(0, keep) });
+    products.push({ m, parsed, urls: urls.slice(0, keep), total: urls.length });
   }
   report.totals.products = products.length;
   log(`Товарів: ${products.length} (у наявності ${report.totals.available}, бронь ${report.totals.reserved}, продано ${report.totals.sold}); без ціни пропущено: ${report.totals.skippedNoPrice}`);
@@ -228,6 +228,7 @@ async function main() {
       permalink: p.m.permalink,
       media,
       thumb: existsSync(thumb) ? rel(thumb) : media[0] || null,
+      photoCount: p.total, // скільки фото в пості Instagram усього (на сайті — до MAX_PHOTOS)
       caption: p.m.caption || '',
     };
   }).filter(p => p.media.length);
