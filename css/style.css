@@ -469,3 +469,7 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 .sale-now-sold { color: var(--sold); }
 .sale-now-more { display: inline-block; margin-top: 6px; color: var(--accent); font-weight: 600; text-decoration: none; }
 .sale-now-more:hover { text-decoration: underline; }
+
+/* Режим «Замовлення» (посилання з повідомлення покупця) */
+.cart-post { color: var(--accent); font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; }
+.cart-post:hover { text-decoration: underline; }

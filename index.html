@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=31">
+  <link rel="stylesheet" href="css/style.css?v=32">
   <script>
     // Застосовуємо збережену тему ще до показу сторінки (щоб не «блимало»)
     try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -193,15 +193,15 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
         <span>Скопіювати список і написати</span>
       </a>
-      <p class="cart-note">Оплата на сайті не потрібна: наявність і доставку підтвердимо в директі, потім — переказ на картку.</p>
+      <p class="cart-note" id="cartNote">Оплата на сайті не потрібна: наявність і доставку підтвердимо в директі, потім — переказ на картку.</p>
       <button type="button" class="cart-clear" id="cartClear">Очистити кошик</button>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/posts.js?v=31"></script>
-  <script src="js/parser.js?v=31"></script>
-  <script src="js/app.js?v=31"></script>
+  <script src="data/posts.js?v=32"></script>
+  <script src="js/parser.js?v=32"></script>
+  <script src="js/app.js?v=32"></script>
 </body>
 </html>

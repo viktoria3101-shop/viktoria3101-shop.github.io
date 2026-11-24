@@ -586,6 +586,12 @@ ${it.permalink}` : '');
   }, { passive: true });
 
   function onHash(fromUser) {
+    const o = location.hash.match(/^#order=(.+)$/);
+    if (o) {
+      if (dlg.open) dlg.close();
+      openOrder(decodeURIComponent(o[1]).split(',').filter(Boolean));
+      return;
+    }
     const m = location.hash.match(/^#p=(.+)$/);
     if (m) {
       openedFromList = fromUser;
@@ -666,11 +672,18 @@ ${it.permalink}` : '');
   const cartAvailable = () => cartItems().filter(it => it.status !== 'sold');
   const cartSum = () => cartAvailable().reduce((s, it) => s + (it.price || 0), 0);
 
+  // Instagram робить клікабельним лише перше посилання в повідомленні, тому замість посилань на кожен пост —
+  // одне посилання на сайт зі списком усього замовлення (фото, розміри, ціни й пости)
+  const SITE_URL = location.origin + location.pathname;
+  const toToken = id => id.replace('#', '~');
+  const fromToken = t => t.replace('~', '#');
+  const orderLink = list => `${SITE_URL}#order=${list.map(it => toToken(it.id)).join(',')}`;
+
   function cartMessage() {
-    const lines = cartAvailable().map((it, i) =>
-      `${i + 1}. ${[it.title, it.brand].filter(Boolean).join(' ')}${it.sizes.length ? ', ' + it.sizes.join('/') : ''} — ${money(it.price)}` +
-      (it.permalink ? `\n${it.permalink}` : ''));
-    return `Вітаю! Хочу замовити:\n${lines.join('\n')}\nРазом: ${money(cartSum())}`;
+    const avail = cartAvailable();
+    const lines = avail.map((it, i) =>
+      `${i + 1}. ${[it.title, it.brand].filter(Boolean).join(' ')}${it.sizes.length ? ', ' + it.sizes.join('/') : ''} — ${money(it.price)}`);
+    return `Вітаю! Хочу замовити:\n${lines.join('\n')}\nРазом: ${money(cartSum())}\n\nУсі речі з фото: ${orderLink(avail)}`;
   }
 
   function updateCartBadge() {
@@ -716,10 +729,13 @@ ${it.permalink}` : '');
   });
 
   const cartDlg = $('cart');
-  function renderCart() {
-    const items = cartItems();
-    const avail = cartAvailable();
-    $('cartTitle').textContent = items.length ? `Кошик (${items.length})` : 'Кошик';
+  // orderIds — режим «Замовлення»: список речей із посилання #order=… (його відкриває мама з повідомлення)
+  function renderCart(orderIds) {
+    const isOrder = Array.isArray(orderIds);
+    const items = isOrder ? orderIds.map(resolveCartItem).filter(Boolean) : cartItems();
+    const avail = items.filter(it => it.status !== 'sold');
+    cartDlg.classList.toggle('is-order', isOrder);
+    $('cartTitle').textContent = isOrder ? `Замовлення (${items.length})` : items.length ? `Кошик (${items.length})` : 'Кошик';
     $('cartList').innerHTML = items.map(it => `<li class="cart-item${it.status === 'sold' ? ' is-sold' : ''}">
         <a class="cart-thumb" href="#p=${encodeURIComponent(it.id)}" data-open="${esc(it.id)}">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ''}</a>
         <div class="cart-info">
@@ -727,13 +743,26 @@ ${it.permalink}` : '');
           <p class="cart-meta">${[it.brand, it.sizes.join('/')].filter(Boolean).map(esc).join(' · ')}</p>
           <p class="cart-price">${it.status === 'sold' ? 'Уже продано' : (it.oldPrice ? `<s class="old-price">${money(it.oldPrice)}</s> ` : '') + money(it.price)}</p>
         </div>
-        <button type="button" class="icon-btn" data-remove="${esc(it.id)}" aria-label="Прибрати з кошика">✕</button>
+        ${isOrder
+          ? (it.permalink ? `<a class="cart-post" href="${esc(it.permalink)}" target="_blank" rel="noopener">Пост →</a>` : '')
+          : `<button type="button" class="icon-btn" data-remove="${esc(it.id)}" aria-label="Прибрати з кошика">✕</button>`}
       </li>`).join('');
     $('cartEmpty').hidden = items.length > 0;
-    for (const id of ['cartSumWrap', 'cartMsgWrap', 'cartWrite']) $(id).hidden = !avail.length;
-    $('cartClear').hidden = !items.length;
-    $('cartSum').textContent = money(cartSum());
-    $('cartMsg').textContent = avail.length ? cartMessage() : '';
+    $('cartSumWrap').hidden = !avail.length;
+    $('cartSum').textContent = money(avail.reduce((sum, it) => sum + (it.price || 0), 0));
+    $('cartMsgWrap').hidden = isOrder || !avail.length;
+    $('cartWrite').hidden = isOrder || !avail.length;
+    $('cartClear').hidden = isOrder || !items.length;
+    $('cartNote').textContent = isOrder
+      ? 'Список речей із замовлення. Натисніть на річ, щоб відкрити її картку, або «Пост →», щоб перейти до поста в Instagram.'
+      : 'Оплата на сайті не потрібна: наявність і доставку підтвердимо в директі, потім — переказ на картку.';
+    $('cartMsg').textContent = !isOrder && avail.length ? cartMessage() : '';
+  }
+
+  function openOrder(tokens) {
+    renderCart(tokens.map(fromToken));
+    if (!cartDlg.open) cartDlg.showModal();
+    document.body.style.overflow = 'hidden';
   }
 
   $('cartBtn').addEventListener('click', () => {
@@ -744,7 +773,10 @@ ${it.permalink}` : '');
   $('pGoCart').addEventListener('click', () => { renderCart(); cartDlg.showModal(); });
   $('closeCart').addEventListener('click', () => cartDlg.close());
   cartDlg.addEventListener('click', e => { if (e.target === cartDlg) cartDlg.close(); });
-  cartDlg.addEventListener('close', () => { if (!dlg.open) document.body.style.overflow = ''; });
+  cartDlg.addEventListener('close', () => {
+    if (!dlg.open) document.body.style.overflow = '';
+    if (location.hash.startsWith('#order=')) history.replaceState(null, '', location.pathname + location.search);
+  });
   $('cartList').addEventListener('click', e => {
     const rm = e.target.closest('[data-remove]');
     if (rm) {
