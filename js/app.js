@@ -37,13 +37,13 @@
   };
 
   const state = {
-    q: '', sort: 'new', showSold: false,
+    q: '', sort: 'new', soldOnly: false, // soldOnly — категорія «Продано» (для мами: що видалити в Instagram)
     categories: new Set(), sizes: new Set(), brands: new Set(), colors: new Set(), materials: new Set(),
     min: null, max: null,
   };
 
   function matches(it, skip) {
-    if (!state.showSold && it.status === 'sold') return false;
+    if (skip !== 'sold' && (state.soldOnly ? it.status !== 'sold' : it.status === 'sold')) return false;
     if (skip !== 'category' && state.categories.size && !state.categories.has(it.category)) return false;
     if (skip !== 'sizes' && state.sizes.size && !it.sizes.some(s => state.sizes.has(s))) return false;
     if (skip !== 'brands' && state.brands.size && !state.brands.has(it.brand)) return false;
@@ -68,7 +68,11 @@
 
   function activeFilterCount() {
     return state.categories.size + state.sizes.size + state.brands.size + state.colors.size + state.materials.size +
-      (state.min != null ? 1 : 0) + (state.max != null ? 1 : 0) + (state.showSold ? 1 : 0);
+      (state.min != null ? 1 : 0) + (state.max != null ? 1 : 0) + (state.soldOnly ? 1 : 0);
+  }
+
+  function soldCount() {
+    return items.filter(it => it.status === 'sold' && matches(it, 'sold')).length;
   }
 
   // ---------- Шапка ----------
@@ -95,17 +99,26 @@
     const total = items.filter(it => matches(it, 'category')).length;
     const cats = P.CATEGORIES.filter(c => counts.get(c) || state.categories.has(c));
     $('categories').innerHTML =
-      `<button type="button" class="chip" data-cat="" aria-pressed="${!state.categories.size}">Усі<span class="count">${total}</span></button>` +
-      cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${state.categories.has(c)}">${esc(c)}<span class="count">${counts.get(c) || 0}</span></button>`).join('');
+      `<button type="button" class="chip" data-cat="" aria-pressed="${!state.categories.size && !state.soldOnly}">Усі<span class="count">${total}</span></button>` +
+      cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${state.categories.has(c)}">${esc(c)}<span class="count">${counts.get(c) || 0}</span></button>`).join('') +
+      (soldCount() || state.soldOnly
+        ? `<button type="button" class="chip chip-sold" data-cat="__sold" aria-pressed="${state.soldOnly}">Продано<span class="count">${soldCount()}</span></button>`
+        : '');
   }
 
   $('categories').addEventListener('click', e => {
     const b = e.target.closest('[data-cat]');
     if (!b) return;
     const c = b.dataset.cat;
-    const onlyThis = state.categories.size === 1 && state.categories.has(c);
-    state.categories.clear();
-    if (c && !onlyThis) state.categories.add(c);
+    if (c === '__sold') {
+      state.soldOnly = !state.soldOnly;
+      state.categories.clear();
+    } else {
+      const onlyThis = state.categories.size === 1 && state.categories.has(c) && !state.soldOnly;
+      state.categories.clear();
+      state.soldOnly = false;
+      if (c && !onlyThis) state.categories.add(c);
+    }
     update();
   });
 
@@ -126,6 +139,7 @@
     if (ALL.categories.length) {
       groups.push(`<div class="f-group"><h3>Категорія</h3>` +
         ALL.categories.map(c => `<label class="f-check"><input type="checkbox" data-category="${esc(c)}"><span>${esc(c)}</span><span class="count" data-count-category="${esc(c)}"></span></label>`).join('') +
+        `<label class="f-check f-sold"><input type="checkbox" id="soldOnly"><span>Продано</span><span class="count" id="soldCount"></span></label>` +
         `</div>`);
     }
     if (ALL.sizes.length) {
@@ -149,7 +163,6 @@
         ALL.materials.map(m => `<label class="f-check"><input type="checkbox" data-material="${esc(m)}"><span>${esc(m)}</span><span class="count" data-count-material="${esc(m)}"></span></label>`).join('') +
         `</div>`);
     }
-    groups.push(`<div class="f-group"><label class="f-toggle"><span>Показувати продані</span><input type="checkbox" id="showSold"></label></div>`);
     $('filtersBody').innerHTML = groups.join('');
   }
 
@@ -203,7 +216,10 @@
       body.querySelector(`[data-count-material="${CSS.escape(m)}"]`).textContent = n;
       cb.closest('label').style.opacity = n || cb.checked ? '' : .4;
     });
-    $('showSold').checked = state.showSold;
+    if ($('soldOnly')) {
+      $('soldOnly').checked = state.soldOnly;
+      $('soldCount').textContent = soldCount();
+    }
     for (const [id, v] of [['priceMin', state.min], ['priceMax', state.max]]) {
       if (document.activeElement !== $(id)) $(id).value = v ?? '';
     }
@@ -227,7 +243,7 @@
     if (t.dataset.category) toggleIn(state.categories, t.dataset.category);
     else if (t.dataset.brand) toggleIn(state.brands, t.dataset.brand);
     else if (t.dataset.material) toggleIn(state.materials, t.dataset.material);
-    else if (t.id === 'showSold') state.showSold = t.checked;
+    else if (t.id === 'soldOnly') state.soldOnly = t.checked;
     else return;
     update();
   });
@@ -244,7 +260,7 @@
   });
 
   function resetFilters() {
-    Object.assign(state, { min: null, max: null, showSold: false, q: '' });
+    Object.assign(state, { min: null, max: null, soldOnly: false, q: '' });
     state.categories.clear(); state.sizes.clear(); state.brands.clear(); state.colors.clear(); state.materials.clear();
     $('search').value = '';
     update();
@@ -323,11 +339,11 @@
     $('grid').innerHTML = '';
     showMore();
     $('empty').hidden = list.length > 0;
-    const avail = list.filter(it => it.status !== 'sold').length;
-    $('resultsInfo').textContent = list.length
-      ? `${avail} ${plural(avail, 'товар', 'товари', 'товарів')} у наявності` +
-        (list.length > avail ? ` · ${list.length - avail} ${plural(list.length - avail, 'продано', 'продано', 'продано')}` : '')
-      : '';
+    const n = list.length;
+    $('resultsInfo').textContent = !n ? ''
+      : state.soldOnly
+        ? `${n} ${plural(n, 'продана річ', 'продані речі', 'проданих речей')} · відкрийте річ, щоб перейти до поста в Instagram`
+        : `${n} ${plural(n, 'товар', 'товари', 'товарів')} у наявності`;
     $('applyFilters').textContent = `Показати ${list.length}`;
   }
 
@@ -388,14 +404,17 @@
     const msg = dmMessage(it);
     const write = $('pWrite');
     const sold = it.status === 'sold';
-    write.href = DM_URL;
+    // Продана річ: кнопка веде прямо на пост в Instagram (щоб мама швидко його видалила)
+    write.href = sold ? (it.permalink || PROFILE_URL) : DM_URL;
     $('pWritePlain').href = DM_URL;
-    write.setAttribute('aria-disabled', sold);
-    $('pWriteLabel').textContent = sold ? 'Товар продано' : 'Скопіювати текст і написати';
+    $('pWriteLabel').textContent = sold ? 'Відкрити пост в Instagram' : 'Скопіювати текст і написати';
     $('pMsg').textContent = msg;
     $('pMsgWrap').hidden = sold;
     $('pWritePlain').hidden = sold;
-    write.onclick = sold ? e => e.preventDefault() : () => {
+    $('pPost').hidden = sold;
+    write.removeAttribute('aria-disabled');
+    document.querySelector('.p-shipping').hidden = sold;
+    write.onclick = sold ? null : () => {
       copyText(msg).then(ok => toast(ok
         ? 'Текст скопійовано ✓ Вставте його в чат'
         : 'Не вдалося скопіювати — перепишіть текст вручну'));

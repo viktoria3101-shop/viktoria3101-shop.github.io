@@ -389,3 +389,9 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 520px) {
   .p-shipping > div { grid-template-columns: 1fr; gap: 2px; }
 }
+
+/* Категорія «Продано» */
+.chip-sold { border-style: dashed; }
+.chip-sold[aria-pressed="true"] { background: var(--sold); border-color: var(--sold); color: #fff; }
+.chip-sold[aria-pressed="true"] .count { color: rgba(255, 255, 255, .75); }
+.f-sold { margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); }
