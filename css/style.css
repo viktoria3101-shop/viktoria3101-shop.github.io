@@ -61,6 +61,10 @@ img { display: block; max-width: 100%; }
 button, input, select { font: inherit; color: inherit; }
 svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 [hidden] { display: none !important; }
+/* Без синього підсвічування при натисканні на телефоні; рамка лише для клавіатури */
+a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
 
@@ -208,6 +212,9 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
 }
 .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
 .card:hover .card-img img { transform: scale(1.03); }
+.card { transition: transform .12s ease, opacity .12s ease; }
+.card:active { transform: scale(.98); opacity: .85; }
+.chip:active, .size-btn:active, .swatch:active, .btn:active, .icon-btn:active, .theme-btn:active { transform: scale(.96); }
 .card.is-sold .card-img img { filter: grayscale(.85) opacity(.6); }
 .tag {
   position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 999px;
