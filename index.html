@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=9">
   <script>
     // Застосовуємо збережену тему ще до показу сторінки (щоб не «блимало»)
     try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -76,6 +76,9 @@
       <section class="results">
         <p class="results-info" id="resultsInfo"></p>
         <div class="grid" id="grid"></div>
+        <div class="more" id="moreWrap" hidden>
+          <button type="button" class="btn ghost" id="moreBtn">Показати ще</button>
+        </div>
         <div class="empty" id="empty" hidden>
           <p>Нічого не знайдено 🙁</p>
           <button type="button" class="btn ghost" id="emptyReset">Скинути фільтри</button>
@@ -131,8 +134,8 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/posts.js?v=8"></script>
-  <script src="js/parser.js?v=8"></script>
-  <script src="js/app.js?v=8"></script>
+  <script src="data/posts.js?v=9"></script>
+  <script src="js/parser.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 </html>

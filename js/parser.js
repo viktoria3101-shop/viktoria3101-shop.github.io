@@ -79,7 +79,8 @@
   ];
 
   // Рядки-«підписи магазину», які не треба показувати в описі товару.
-  const BOILERPLATE = [/обмін/i, /повернення/i, /уточнюйте/i, /звіряйте/i, /^ціна/i];
+  const BOILERPLATE = [/обмін/i, /повернення/i, /уточнюйте/i, /звіряйте/i, /^ціна/i,
+    /посилання (?:в|у) (?:шапці|профілі|біо)/i, /каталог.*(?:сайт|посилання)/i];
 
   const SIZE_ORDER = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', 'ONE SIZE'];
 
@@ -196,7 +197,9 @@
   }
 
   function parsePrice(caption) {
-    const m = caption.match(/ціна\s*[:\-–—]?\s*(\d[\d\s]*)\s*(грн|₴|uah|гривень)/i);
+    const m = caption.match(/ціна\s*[:\-–—]?\s*(\d[\d\s]*)\s*(грн|₴|uah|гривень)/i)
+      // запасний варіант: просто «1480 грн» без слова «Ціна»
+      || caption.match(/(?:^|[^\d])(\d{2,3}(?:[  ]?\d{3})?)\s*(грн|₴)/i);
     return m ? parseInt(m[1].replace(/\s/g, ''), 10) : null;
   }
 
@@ -338,6 +341,7 @@
       details,
       hashtags,
       images: post.media || [],
+      thumb: post.thumb || (post.media || [])[0] || null,
       permalink: post.permalink || null,
       timestamp: post.timestamp || null,
       caption,

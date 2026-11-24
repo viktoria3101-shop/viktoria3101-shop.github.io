@@ -350,3 +350,7 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
   :root:not([data-theme="light"]) .theme-btn .sun { display: none; }
   :root:not([data-theme="light"]) .theme-btn .moon { display: block; }
 }
+
+/* ---------- Показати ще ---------- */
+.more { display: flex; justify-content: center; padding: 28px 0 4px; }
+.more .btn { min-width: 220px; }

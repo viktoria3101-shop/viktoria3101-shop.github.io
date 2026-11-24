@@ -250,8 +250,8 @@
     const tag = it.status === 'sold' ? '<span class="tag sold">Продано</span>'
       : it.status === 'reserved' ? '<span class="tag reserved">Заброньовано</span>' : '';
     const photos = it.images.length > 1 ? `<span class="tag photos">${it.images.length} фото</span>` : '';
-    const img = it.images[0]
-      ? `<img src="${esc(it.images[0])}" alt="${esc(it.title)}" loading="lazy">`
+    const img = it.thumb
+      ? `<img src="${esc(it.thumb)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`
       : '';
     return `<a class="card${it.status === 'sold' ? ' is-sold' : ''}" href="#p=${encodeURIComponent(it.id)}">
       <div class="card-img">${img}${tag}${photos}</div>
@@ -266,9 +266,26 @@
     </a>`;
   }
 
+  // Показуємо товари порціями, щоб сторінка з 1000+ постів не гальмувала
+  const PAGE = 40;
+  let currentList = [];
+  let shown = 0;
+
+  function showMore() {
+    const next = currentList.slice(shown, shown + PAGE);
+    $('grid').insertAdjacentHTML('beforeend', next.map(cardHTML).join(''));
+    shown += next.length;
+    const left = currentList.length - shown;
+    $('moreWrap').hidden = left <= 0;
+    $('moreBtn').textContent = `Показати ще (${left})`;
+  }
+
   function renderGrid() {
     const list = sorted(items.filter(it => matches(it)));
-    $('grid').innerHTML = list.map(cardHTML).join('');
+    currentList = list;
+    shown = 0;
+    $('grid').innerHTML = '';
+    showMore();
     $('empty').hidden = list.length > 0;
     const avail = list.filter(it => it.status !== 'sold').length;
     $('resultsInfo').textContent = list.length
@@ -282,6 +299,14 @@
     renderCategories();
     syncFilters();
     renderGrid();
+  }
+
+  $('moreBtn').addEventListener('click', showMore);
+  // Автопідвантаження, коли покупець догортав до кінця списку
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting) && shown < currentList.length) showMore();
+    }, { rootMargin: '600px 0px' }).observe($('moreWrap'));
   }
 
   // ---------- Картка товару ----------

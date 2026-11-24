@@ -1,0 +1,9 @@
+{
+  "name": "shop-sync",
+  "private": true,
+  "type": "module",
+  "description": "Синхронізація постів Instagram у каталог сайту",
+  "dependencies": {
+    "sharp": "0.33.5"
+  }
+}
