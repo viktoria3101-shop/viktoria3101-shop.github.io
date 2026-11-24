@@ -29,6 +29,9 @@
     'Street One', 'Cecil', 'Opus', 'Comma', 'More & More', 'Marella', 'Sportmax', 'Iceberg',
   ];
 
+  const SALE_RE = /розпрод/i;
+  const SALE_CATEGORY = 'Розпродаж';
+
   // Як бренди пишуть кирилицею → правильна назва
   const BRAND_ALIASES = [
     ['зара', 'Zara'], ['манго', 'Mango'], ['массімо дутті', 'Massimo Dutti'], ['масімо дутті', 'Massimo Dutti'],
@@ -393,7 +396,9 @@
     const measurements = parseMeasurements(lines);
 
     const cat = findFirst(CATEGORY_RE, [title, firstLine, hashtags.join(' '), textNoTags]);
-    const category = cat ? cat[0] : 'Інше';
+    // Пост-розпродаж («❗Розпродаж❗ Всі речі в дописі по 200 грн») — окрема категорія
+    const isSale = !!post.isSale || SALE_RE.test(firstLine);
+    const category = isSale ? SALE_CATEGORY : cat ? cat[0] : 'Інше';
 
     // Опис: усе, що не ціна, не заміри, не стандартні застереження.
     const measureLines = new Set(lines.filter(l => parseMeasurements([l]).length));
@@ -406,14 +411,22 @@
         return !BOILERPLATE.some(re => re.test(stripEmoji(l).trim()));
       });
 
+    // Річ, що є в розпродажі: нова ціна, стара — закреслена
+    const onSale = !isSale && post.salePrice != null && price != null && post.salePrice < price;
+
     return {
       id: String(post.id),
-      title,
-      brand,
+      title: isSale && price != null ? `Розпродаж: речі по ${price} грн` : title,
+      brand: isSale ? null : brand,
       category,
       status,
-      price,
-      sizes,
+      price: onSale ? post.salePrice : price,
+      oldPrice: onSale ? price : null,
+      onSale,
+      saleFrom: onSale ? String(post.saleFrom) : null,
+      isSale,
+      saleLinks: isSale ? (post.saleLinks || []) : null,
+      sizes: isSale ? [] : sizes,
       color,
       materials,
       measurements,
@@ -435,7 +448,7 @@
     return 100 + (isNaN(n) ? 999 : n);
   }
 
-  const api = { parsePost, sizeSortKey, COLORS, CATEGORIES: CATEGORIES.map(c => c[0]).concat('Інше') };
+  const api = { parsePost, sizeSortKey, COLORS, SALE_CATEGORY, CATEGORIES: [SALE_CATEGORY].concat(CATEGORIES.map(c => c[0]), 'Інше') };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ShopParser = api;

@@ -130,6 +130,93 @@ function photoUrls(m) {
   return [pick(m)].filter(Boolean);
 }
 
+// ---------- Розпродажі ----------
+//
+// Пост «❗Розпродаж❗ Всі речі в дописі по 200 грн» — карусель із фото речей, які мають і свої окремі
+// пости (зі старою ціною). Знаходимо пари за «відбитком» фото (dHash 16×16): однакові фото дають
+// відстань ~0–20 з 256, різні — 55+.
+
+const SALE_RE = /розпрод/i;
+const SALE_MAX_PHOTOS = 20;
+const MATCH_MAX_DIST = 30;   // не більше стількох різних біт — та сама фотографія
+const MATCH_MIN_GAP = 20;    // і друга найкраща пара має бути помітно гіршою (щоб не сплутати схожі речі)
+
+async function dhash(file) {
+  const { data } = await sharp(file).grayscale().resize(17, 16, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true });
+  const words = new Uint32Array(8);
+  let bit = 0;
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 16; x++, bit++) {
+      if (data[y * 17 + x] > data[y * 17 + x + 1]) words[bit >> 5] |= 1 << (bit & 31);
+    }
+  }
+  return words;
+}
+
+function hamming(a, b) {
+  let n = 0;
+  for (let i = 0; i < 8; i++) {
+    let v = a[i] ^ b[i];
+    v = v - ((v >>> 1) & 0x55555555);
+    v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
+    n += (((v + (v >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
+  }
+  return n;
+}
+
+async function matchSales(products) {
+  const sales = products.filter(p => p.isSale);
+  report.sales = [];
+  if (!sales.length) return;
+
+  // Відбитки перших 3 фото кожної звичайної речі
+  const index = [];
+  for (const p of products) {
+    if (p.isSale) continue;
+    for (const f of p.files.slice(0, 3)) {
+      if (!existsSync(f)) continue;
+      try { index.push({ h: await dhash(f), p }); } catch { /* пошкоджене фото — пропускаємо */ }
+    }
+  }
+
+  // Від старіших розпродажів до новіших: якщо річ була в кількох, перемагає найновіша ціна
+  sales.sort((a, b) => String(a.m.timestamp).localeCompare(String(b.m.timestamp)));
+  for (const s of sales) {
+    const price = s.parsed.price;
+    s.saleLinks = [];
+    const entry = { post: s.m.permalink, price, photos: s.files.length, matched: [], unmatched: [] };
+    for (let i = 0; i < s.files.length; i++) {
+      s.saleLinks[i] = null;
+      if (!existsSync(s.files[i])) continue;
+      let h;
+      try { h = await dhash(s.files[i]); } catch { continue; }
+      // Найкраща і друга найкраща річ (різні пости)
+      let best = null, second = Infinity;
+      const perPost = new Map();
+      for (const x of index) {
+        const d = hamming(h, x.h);
+        if (!perPost.has(x.p) || d < perPost.get(x.p)) perPost.set(x.p, d);
+      }
+      for (const [p, d] of perPost) {
+        if (!best || d < best.d) { if (best) second = Math.min(second, best.d); best = { p, d }; }
+        else if (d < second) second = d;
+      }
+      if (best && best.d <= MATCH_MAX_DIST && second - best.d >= MATCH_MIN_GAP) {
+        const item = best.p;
+        s.saleLinks[i] = item.m.id;
+        if (price != null && item.parsed.price != null && price < item.parsed.price) {
+          item.sale = { price, id: s.m.id };
+        }
+        entry.matched.push({ photo: i + 1, post: item.m.permalink, oldPrice: item.parsed.price, status: item.parsed.status });
+      } else if (i > 0) {
+        entry.unmatched.push(i + 1); // фото 1 — зазвичай обкладинка «Речі по 100 грн»
+      }
+    }
+    report.sales.push(entry);
+    log(`Розпродаж ${s.m.permalink}: знайдено ${entry.matched.length} з ${s.files.length} фото`);
+  }
+}
+
 // ---------- Головне ----------
 
 async function main() {
@@ -157,8 +244,9 @@ async function main() {
       if (!parsed.brand) report.issues.noBrand.push(m.permalink);
       if (parsed.category === 'Інше') report.issues.otherCategory.push(m.permalink);
     }
-    const keep = parsed.status === 'sold' ? 1 : MAX_PHOTOS;
-    products.push({ m, parsed, urls: urls.slice(0, keep), total: urls.length });
+    const isSale = SALE_RE.test((m.caption || '').split('\n')[0]);
+    const keep = isSale ? SALE_MAX_PHOTOS : parsed.status === 'sold' ? 1 : MAX_PHOTOS;
+    products.push({ m, parsed, isSale, urls: urls.slice(0, keep), total: urls.length });
   }
   report.totals.products = products.length;
   log(`Товарів: ${products.length} (у наявності ${report.totals.available}, бронь ${report.totals.reserved}, продано ${report.totals.sold}); без ціни пропущено: ${report.totals.skippedNoPrice}`);
@@ -217,12 +305,16 @@ async function main() {
   log(`Фото займають ${report.images.totalMB} МБ`);
   if (report.images.totalMB > SIZE_WARN_MB) log(`УВАГА: фото займають понад ${SIZE_WARN_MB} МБ — ліміт GitHub Pages 1 ГБ`);
 
+  // Розпродажі: шукаємо, якому окремому посту відповідає кожне фото каруселі
+  await matchSales(products);
+
   // Дані для сайту
   const rel = f => path.relative(ROOT, f).split(path.sep).join('/');
   const posts = products.map(p => {
-    const media = p.files.filter(f => existsSync(f)).map(rel);
+    const kept = p.files.map((f, i) => ({ f, i })).filter(x => existsSync(x.f));
+    const media = kept.map(x => rel(x.f));
     const thumb = path.join(IMG_DIR, p.m.id, 't.webp');
-    return {
+    const post = {
       id: p.m.id,
       timestamp: p.m.timestamp,
       permalink: p.m.permalink,
@@ -231,6 +323,15 @@ async function main() {
       photoCount: p.total, // скільки фото в пості Instagram усього (на сайті — до MAX_PHOTOS)
       caption: p.m.caption || '',
     };
+    if (p.isSale) {
+      post.isSale = true;
+      post.saleLinks = kept.map(x => (p.saleLinks && p.saleLinks[x.i]) || null); // id окремого поста для кожного фото
+    }
+    if (p.sale) {
+      post.salePrice = p.sale.price;   // ціна з розпродажу (менша за звичайну)
+      post.saleFrom = p.sale.id;       // id поста-розпродажу
+    }
+    return post;
   }).filter(p => p.media.length);
 
   const data = { demo: false, shop: SHOP, updatedAt: new Date().toISOString(), posts };

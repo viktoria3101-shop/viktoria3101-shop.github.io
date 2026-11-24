@@ -33,7 +33,7 @@
     colors: P.COLORS.filter(([name]) => items.some(it => it.color && it.color.name === name)),
     materials: [...new Set(items.flatMap(it => it.materials))].sort((a, b) => a.localeCompare(b, 'uk')),
     prices: items.map(it => it.price).filter(p => p != null),
-    categories: P.CATEGORIES.filter(c => items.some(it => it.category === c)),
+    categories: P.CATEGORIES.filter(c => items.some(it => it.category === c || (c === P.SALE_CATEGORY && it.onSale))),
   };
 
   const state = {
@@ -44,7 +44,8 @@
 
   function matches(it, skip) {
     if (skip !== 'sold' && (state.soldOnly ? it.status !== 'sold' : it.status === 'sold')) return false;
-    if (skip !== 'category' && state.categories.size && !state.categories.has(it.category)) return false;
+    if (skip !== 'category' && state.categories.size &&
+      !(state.categories.has(it.category) || (it.onSale && state.categories.has(P.SALE_CATEGORY)))) return false;
     if (skip !== 'sizes' && state.sizes.size && !it.sizes.some(s => state.sizes.has(s))) return false;
     if (skip !== 'brands' && state.brands.size && !state.brands.has(it.brand)) return false;
     if (skip !== 'colors' && state.colors.size && !(it.color && state.colors.has(it.color.name))) return false;
@@ -71,6 +72,9 @@
       (state.min != null ? 1 : 0) + (state.max != null ? 1 : 0) + (state.soldOnly ? 1 : 0);
   }
 
+  // Річ, що є в розпродажі, рахується і у своїй категорії, і в «Розпродажі»
+  const catKeys = it => [it.category, it.onSale ? P.SALE_CATEGORY : null];
+
   function soldCount() {
     return items.filter(it => it.status === 'sold' && matches(it, 'sold')).length;
   }
@@ -95,7 +99,7 @@
   // ---------- Категорії ----------
 
   function renderCategories() {
-    const counts = countBy('category', it => [it.category]);
+    const counts = countBy('category', catKeys);
     const total = items.filter(it => matches(it, 'category')).length;
     const cats = P.CATEGORIES.filter(c => counts.get(c) || state.categories.has(c));
     $('categories').innerHTML =
@@ -185,7 +189,7 @@
     if ($('sizeHint')) {
       $('sizeHint').hidden = state.categories.size > 0 || !ALL.sizes.some(s => !LETTER_SIZES.has(s));
     }
-    const catCounts = countBy('category', it => [it.category]);
+    const catCounts = countBy('category', catKeys);
     body.querySelectorAll('[data-category]').forEach(cb => {
       const c = cb.dataset.category;
       cb.checked = state.categories.has(c);
@@ -309,7 +313,9 @@
   // ---------- Сітка товарів ----------
 
   function sorted(list) {
-    const rank = it => (it.status === 'sold' ? 1 : 0); // продане — завжди в кінці
+    const saleView = state.categories.has(P.SALE_CATEGORY);
+    // продане — завжди в кінці; у «Розпродажі» спершу самі дописи-розпродажі
+    const rank = it => (it.status === 'sold' ? 2 : 0) + (saleView && !it.isSale ? 1 : 0);
     const cmp = {
       new: (a, b) => String(b.timestamp).localeCompare(String(a.timestamp)),
       cheap: (a, b) => (a.price ?? 1e9) - (b.price ?? 1e9),
@@ -320,7 +326,8 @@
 
   function cardHTML(it) {
     const tag = it.status === 'sold' ? '<span class="tag sold">Продано</span>'
-      : it.status === 'reserved' ? '<span class="tag reserved">Заброньовано</span>' : '';
+      : it.status === 'reserved' ? '<span class="tag reserved">Заброньовано</span>'
+      : it.onSale ? '<span class="tag sale">Розпродаж</span>' : '';
     const photos = it.photoCount > 1 && it.status !== 'sold' ? `<span class="tag photos">${it.photoCount} фото</span>` : '';
     const img = it.thumb
       ? `<img src="${esc(it.thumb)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`
@@ -331,7 +338,7 @@
         ${it.brand ? `<p class="card-brand">${esc(it.brand)}</p>` : ''}
         <h3 class="card-title">${esc(it.title)}</h3>
         <div class="card-meta">
-          <span class="card-price">${money(it.price)}</span>
+          <span class="card-price">${it.oldPrice ? `<s class="old-price">${money(it.oldPrice)}</s> ` : ''}${money(it.price)}</span>
           ${it.sizes.length ? `<span class="card-sizes">${it.sizes.map(s => `<span>${esc(s)}</span>`).join('')}</span>` : ''}
         </div>
       </div>
@@ -386,6 +393,7 @@
   // ---------- Картка товару ----------
 
   const dlg = $('product');
+  let currentItem = null, currentPhoto = 0, currentMsg = '';
   dlg.appendChild($('toast')); // щоб повідомлення було видно поверх відкритої картки
   let openedFromList = false;
 
@@ -396,7 +404,8 @@
     $('pBrand').textContent = it.brand || '';
     $('pBrand').hidden = !it.brand;
     $('pTitle').textContent = it.title;
-    $('pPrice').textContent = money(it.price);
+    $('pPrice').innerHTML = (it.oldPrice ? `<s class="old-price">${money(it.oldPrice)}</s> ` : '') + money(it.price) +
+      (it.onSale && byId.has(it.saleFrom) ? ` <a class="p-sale-link" href="#p=${encodeURIComponent(it.saleFrom)}">з розпродажу →</a>` : '');
 
     const st = $('pStatus');
     st.hidden = it.status === 'available';
@@ -422,7 +431,10 @@
     $('pDetails').innerHTML = details.map(l => `<p>${esc(l)}</p>`).join('');
 
     // Текст показуємо покупцю заздалегідь — копіюється лише після явного натискання
-    const msg = dmMessage(it);
+    currentItem = it;
+    currentPhoto = 0;
+    const msg = dmMessage(it, 0);
+    currentMsg = msg;
     const write = $('pWrite');
     const sold = it.status === 'sold';
     // Продана річ: кнопка веде прямо на пост в Instagram (щоб мама швидко його видалила)
@@ -436,7 +448,7 @@
     write.removeAttribute('aria-disabled');
     document.querySelector('.p-shipping').hidden = sold;
     write.onclick = sold ? null : () => {
-      copyText(msg).then(ok => toast(ok
+      copyText(currentMsg).then(ok => toast(ok
         ? 'Текст скопійовано ✓ Вставте його в чат'
         : 'Не вдалося скопіювати — перепишіть текст вручну'));
     };
@@ -444,7 +456,15 @@
 
     // Галерея
     const track = $('gTrack');
-    track.innerHTML = it.images.map((src, i) => `<img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}">`).join('');
+    track.innerHTML = it.images.map((src, i) => {
+      const linkId = it.isSale && it.saleLinks ? it.saleLinks[i] : null;
+      const linked = linkId && byId.get(String(linkId));
+      const badge = !linked ? ''
+        : linked.status === 'sold'
+          ? `<span class="g-item sold">Уже продано</span>`
+          : `<a class="g-item" href="#p=${encodeURIComponent(linked.id)}">Ця річ окремо →</a>`;
+      return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i ? 'lazy' : 'eager'}">${badge}</div>`;
+    }).join('');
     track.scrollLeft = 0;
     const many = it.images.length > 1;
     $('gPrev').hidden = $('gNext').hidden = !many;
@@ -461,7 +481,12 @@
     $('product').querySelector('.product-info').scrollTop = 0;
   }
 
-  function dmMessage(it) {
+  function dmMessage(it, photo) {
+    if (it.isSale) {
+      return `Вітаю! Мене цікавить річ із розпродажу${it.price != null ? ' по ' + money(it.price) : ''} — фото №${photo + 1}` +
+        (it.permalink ? `
+${it.permalink}` : '');
+    }
     const parts = [it.title, it.brand].filter(Boolean).join(' ');
     return `Вітаю! Мене цікавить: ${parts}${it.price != null ? ', ' + money(it.price) : ''}` +
       (it.permalink ? `\n${it.permalink}` : '');
@@ -489,6 +514,12 @@
   track.addEventListener('scroll', () => {
     const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
     [...$('gDots').children].forEach((d, j) => d.classList.toggle('on', i === j));
+    // У розпродажі текст повідомлення залежить від того, яке фото зараз видно
+    if (currentItem && currentItem.isSale && i !== currentPhoto) {
+      currentPhoto = i;
+      currentMsg = dmMessage(currentItem, i);
+      $('pMsg').textContent = currentMsg;
+    }
   }, { passive: true });
 
   function onHash(fromUser) {
