@@ -364,6 +364,15 @@
     return out;
   }
 
+  // Номери проданих фото в підписі розпродажу
+  function parseSoldPhotos(caption) {
+    const out = new Set();
+    const re = /фото\s*[-–—№#]?\s*(\d{1,2})\s*[-–—:.,]?\s*(?:\([^)]*\)\s*[-–—]?\s*)?продан/gi;
+    let m;
+    while ((m = re.exec(caption))) out.add(parseInt(m[1], 10));
+    return [...out].sort((a, b) => a - b);
+  }
+
   function parseMeasurements(lines) {
     const out = [];
     for (const line of lines) {
@@ -426,6 +435,8 @@
       saleFrom: onSale ? String(post.saleFrom) : null,
       isSale,
       saleLinks: isSale ? (post.saleLinks || []) : null,
+      // «Фото 2 - Продано», «Фото -7 Продано», «Фото 4 - Продана (зелена блуза)» → [2, 7, 4]
+      soldPhotos: isSale ? parseSoldPhotos(caption) : null,
       sizes: isSale ? [] : sizes,
       color,
       materials,

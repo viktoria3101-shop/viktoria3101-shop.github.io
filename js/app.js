@@ -27,6 +27,24 @@
   }
   const byId = new Map(items.map(it => [it.id, it]));
 
+  // Розпродажі: стан кожного фото каруселі.
+  // «Фото N - Продано» в підписі розпродажу (або продана окрема річ) → фото продане,
+  // і окрема річ теж стає проданою. Рахуємо, скільки речей ще в наявності.
+  for (const s of items.filter(it => it.isSale)) {
+    const soldNums = new Set(s.soldPhotos || []);
+    s.slideState = s.images.map((_, i) => {
+      if (i === 0) return { kind: 'cover' };
+      const linked = s.saleLinks && s.saleLinks[i] ? byId.get(String(s.saleLinks[i])) : null;
+      const sold = soldNums.has(i + 1) || !!(linked && linked.status === 'sold');
+      if (sold && linked && linked.status !== 'sold') linked.status = 'sold';
+      return { kind: sold ? 'sold' : linked ? 'linked' : 'available', linked };
+    });
+    const slides = s.slideState.filter(x => x.kind !== 'cover');
+    s.saleTotal = slides.length;
+    s.saleLeft = slides.filter(x => x.kind !== 'sold').length;
+    if (s.saleTotal && !s.saleLeft) s.status = 'sold';
+  }
+
   const ALL = {
     sizes: [...new Set(items.flatMap(it => it.sizes))].sort((a, b) => P.sizeSortKey(a) - P.sizeSortKey(b)),
     brands: [...new Set(items.map(it => it.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
@@ -340,6 +358,7 @@
         <div class="card-meta">
           <span class="card-price">${it.oldPrice ? `<s class="old-price">${money(it.oldPrice)}</s> ` : ''}${money(it.price)}</span>
           ${it.sizes.length ? `<span class="card-sizes">${it.sizes.map(s => `<span>${esc(s)}</span>`).join('')}</span>` : ''}
+          ${it.isSale ? `<span class="card-left">В наявності: ${it.saleLeft} з ${it.saleTotal}</span>` : ''}
         </div>
       </div>
     </a>`;
@@ -420,6 +439,7 @@
       specs.push(['Колір', dot + esc(it.color.raw.charAt(0).toUpperCase() + it.color.raw.slice(1))]);
     }
     if (it.materials.length) specs.push(['Матеріал', esc(it.materials.join(', '))]);
+    if (it.isSale) specs.push(['В наявності', `${it.saleLeft} з ${it.saleTotal} речей`]);
     specs.push(['Категорія', esc(it.category)]);
     $('pSpecs').innerHTML = specs.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
 
@@ -454,16 +474,16 @@
     };
     $('pPost').href = it.permalink || PROFILE_URL;
     syncCartButton(it);
+    if (it.isSale) updateSaleSlide(0);
 
     // Галерея
     const track = $('gTrack');
     track.innerHTML = it.images.map((src, i) => {
-      const linkId = it.isSale && it.saleLinks ? it.saleLinks[i] : null;
-      const linked = linkId && byId.get(String(linkId));
-      const badge = !linked ? ''
-        : linked.status === 'sold'
-          ? `<span class="g-item sold">Уже продано</span>`
-          : `<a class="g-item" href="#p=${encodeURIComponent(linked.id)}">Ця річ окремо →</a>`;
+      const st = it.isSale && it.slideState ? it.slideState[i] : null;
+      const badge = !st || st.kind === 'cover' ? ''
+        : st.kind === 'sold' ? `<span class="g-item sold">Продано</span>`
+        : st.kind === 'linked' ? `<a class="g-item" href="#p=${encodeURIComponent(st.linked.id)}">Ця річ окремо →</a>`
+        : `<span class="g-item avail">В наявності</span>`;
       return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i ? 'lazy' : 'eager'}">${badge}</div>`;
     }).join('');
     track.scrollLeft = 0;
@@ -484,7 +504,24 @@
     $('product').querySelector('.product-inner').scrollTop = 0;
   }
 
+  // Розпродаж: текст і кнопка залежать від фото, яке зараз на екрані
+  function updateSaleSlide(i) {
+    const it = currentItem;
+    if (!it || !it.isSale) return;
+    currentPhoto = i;
+    const st = it.slideState && it.slideState[i];
+    const sold = st && st.kind === 'sold';
+    const write = $('pWrite');
+    write.setAttribute('aria-disabled', sold);
+    $('pWriteLabel').textContent = sold ? `Фото №${i + 1} уже продано` : 'Скопіювати текст і написати';
+    currentMsg = dmMessage(it, i);
+    $('pMsg').textContent = sold ? `Річ на фото №${i + 1} уже продано — гортайте далі 🙂` : currentMsg;
+  }
+
   function dmMessage(it, photo) {
+    if (it.isSale && !photo) {
+      return `Вітаю! Мене цікавить розпродаж${it.price != null ? ' по ' + money(it.price) : ''}` + (it.permalink ? `\n${it.permalink}` : '');
+    }
     if (it.isSale) {
       return `Вітаю! Мене цікавить річ із розпродажу${it.price != null ? ' по ' + money(it.price) : ''} — фото №${photo + 1}` +
         (it.permalink ? `
@@ -518,11 +555,7 @@ ${it.permalink}` : '');
     const i = Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
     [...$('gDots').children].forEach((d, j) => d.classList.toggle('on', i === j));
     // У розпродажі текст повідомлення залежить від того, яке фото зараз видно
-    if (currentItem && currentItem.isSale && i !== currentPhoto) {
-      currentPhoto = i;
-      currentMsg = dmMessage(currentItem, i);
-      $('pMsg').textContent = currentMsg;
-    }
+    if (currentItem && currentItem.isSale && i !== currentPhoto) updateSaleSlide(i);
   }, { passive: true });
 
   function onHash(fromUser) {
