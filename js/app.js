@@ -8,6 +8,8 @@
   const PROFILE_URL = 'https://www.instagram.com/' + USER + '/';
 
   const $ = id => document.getElementById(id);
+  // Подія для статистики Umami (якщо лічильник не завантажився — просто нічого не робимо)
+  const stat = (name, data) => { try { if (window.umami) window.umami.track(name, data); } catch (e) {} };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const money = n => (n == null ? 'Ціну уточнюйте' : n.toLocaleString('uk-UA') + ' грн');
   const plural = (n, one, few, many) => {
@@ -468,7 +470,9 @@
     $('pPost').hidden = sold;
     write.removeAttribute('aria-disabled');
     document.querySelector('.p-shipping').hidden = sold;
+    if (!sold && !location.hash.startsWith('#order=')) stat('Відкрили річ', { річ: it.title });
     write.onclick = sold ? null : () => {
+      stat('Написати про річ', { річ: it.title });
       copyText(currentMsg).then(ok => toast(ok
         ? 'Текст скопійовано ✓ Вставте його в чат'
         : 'Не вдалося скопіювати — перепишіть текст вручну'));
@@ -718,11 +722,16 @@ ${it.permalink}` : '');
     b.querySelector('span').textContent = on ? 'У кошику ✓ (прибрати)' : 'Додати в кошик';
   }
 
+  $('pWritePlain').addEventListener('click', () => {
+    if (currentItem) stat('Написати без копіювання', { річ: currentItem.title });
+  });
+
   $('pCart').addEventListener('click', () => {
     if (!currentItem) return;
     const id = cartIdFor(currentItem);
     if (!id) return;
     const was = inCart(id);
+    if (!was) stat('Додали в кошик', { річ: currentItem.title });
     toggleCart(id);
     syncCartButton(currentItem);
     toast(was ? 'Прибрано з кошика' : `Додано в кошик (${cart.length}). Оберіть ще або відкрийте кошик`);
@@ -807,6 +816,8 @@ ${it.permalink}` : '');
   });
   $('cartWrite').href = DM_URL;
   $('cartWrite').addEventListener('click', () => {
+    const its = cartItems().filter(it => it.status !== 'sold');
+    stat('Замовлення з кошика', { речей: its.length, сума: its.reduce((s, it) => s + (it.price || 0), 0) });
     copyText(cartMessage()).then(ok => toast(ok
       ? 'Список скопійовано ✓ Вставте його в чат'
       : 'Не вдалося скопіювати — перепишіть текст вручну'));
