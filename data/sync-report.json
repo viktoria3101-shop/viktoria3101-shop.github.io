@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T17:56:55.034Z",
-  "finishedAt": "2026-11-24T18:00:05.444Z",
+  "startedAt": "2026-11-24T18:24:25.417Z",
+  "finishedAt": "2026-11-24T18:26:53.413Z",
   "ok": true,
   "error": null,
   "account": {
@@ -639,7 +639,6 @@
       "https://www.instagram.com/p/DAGQj44t4F1/",
       "https://www.instagram.com/p/DABNAkUtCWV/",
       "https://www.instagram.com/p/C_4_boONcee/",
-      "https://www.instagram.com/p/C_qJ50Itjck/",
       "https://www.instagram.com/p/C_lPRBrt0ye/",
       "https://www.instagram.com/p/C_kL7VINo_P/",
       "https://www.instagram.com/p/C_aB5aStTST/",
@@ -1545,7 +1544,7 @@
         {
           "photo": 17,
           "post": "https://www.instagram.com/p/C_qJ50Itjck/",
-          "oldPrice": 280,
+          "oldPrice": 200,
           "status": "available"
         },
         {
