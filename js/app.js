@@ -533,6 +533,12 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
   }
 
+  // На телефоні посилання на Instagram відкриваємо в тій самій вкладці: застосунок Instagram
+  // перехоплює їх сам, а з target="_blank" Chrome на Android лишає порожні вкладки.
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    ['pWrite', 'pWritePlain', 'pPost', 'gMore', 'igProfile'].forEach(id => $(id) && $(id).removeAttribute('target'));
+  }
+
   // ---------- Старт ----------
 
   buildFilters();
