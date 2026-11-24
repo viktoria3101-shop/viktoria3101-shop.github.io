@@ -683,7 +683,7 @@ ${it.permalink}` : '');
     const avail = cartAvailable();
     const lines = avail.map((it, i) =>
       `${i + 1}. ${[it.title, it.brand].filter(Boolean).join(' ')}${it.sizes.length ? ', ' + it.sizes.join('/') : ''} — ${money(it.price)}`);
-    return `Вітаю! Хочу замовити:\n${lines.join('\n')}\nРазом: ${money(cartSum())}\n\nУсі речі з фото: ${orderLink(avail)}`;
+    return `Вітаю! Хочу замовити:\n${lines.join('\n')}\nРазом: ${money(cartSum())}\n\nПереглянути замовлення: ${orderLink(avail)}`;
   }
 
   function updateCartBadge() {
