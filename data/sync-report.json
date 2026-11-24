@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T16:40:53.810Z",
-  "finishedAt": "2026-11-24T16:42:40.325Z",
+  "startedAt": "2026-11-24T16:50:52.198Z",
+  "finishedAt": "2026-11-24T16:51:52.009Z",
   "ok": true,
   "error": null,
   "account": {
@@ -16,8 +16,8 @@
     "skippedNoPrice": 26
   },
   "images": {
-    "downloaded": 1483,
-    "reused": 11323,
+    "downloaded": 0,
+    "reused": 12806,
     "failed": 0,
     "removedDirs": 0,
     "totalMB": 671
@@ -657,7 +657,6 @@
       "https://www.instagram.com/p/C8lsBxVtRlq/",
       "https://www.instagram.com/p/C8W924BNup0/",
       "https://www.instagram.com/p/C8Tq8PVt3HC/",
-      "https://www.instagram.com/p/C8TogDXN-_r/",
       "https://www.instagram.com/p/C8PMOKjtfdl/",
       "https://www.instagram.com/p/C8KcAEtt-rW/",
       "https://www.instagram.com/p/C8CUqiltXYb/",
@@ -665,7 +664,6 @@
       "https://www.instagram.com/p/C7wJOX4NTFP/",
       "https://www.instagram.com/p/C7tgK2StT0k/",
       "https://www.instagram.com/p/C7rCwGBNo-p/",
-      "https://www.instagram.com/p/C7qUNz1tYgs/",
       "https://www.instagram.com/p/C7mA8qBNF71/",
       "https://www.instagram.com/p/C7ej1h0tTLm/",
       "https://www.instagram.com/p/C7eHKFUtHTD/",
