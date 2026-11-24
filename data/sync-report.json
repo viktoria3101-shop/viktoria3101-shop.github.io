@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T17:52:46.061Z",
-  "finishedAt": "2026-11-24T17:53:47.946Z",
+  "startedAt": "2026-11-24T17:56:55.034Z",
+  "finishedAt": "2026-11-24T18:00:05.444Z",
   "ok": true,
   "error": null,
   "account": {
@@ -10,17 +10,17 @@
   "totals": {
     "posts": 1431,
     "products": 1405,
-    "available": 1265,
+    "available": 1264,
     "reserved": 7,
-    "sold": 133,
+    "sold": 134,
     "skippedNoPrice": 26
   },
   "images": {
     "downloaded": 0,
-    "reused": 12895,
+    "reused": 12887,
     "failed": 0,
     "removedDirs": 0,
-    "totalMB": 675
+    "totalMB": 674
   },
   "issues": {
     "noPrice": [
@@ -1078,6 +1078,12 @@
           "status": "available"
         },
         {
+          "photo": 18,
+          "post": "https://www.instagram.com/p/DbLwAWcjNIs/",
+          "oldPrice": 280,
+          "status": "available"
+        },
+        {
           "photo": 19,
           "post": "https://www.instagram.com/p/DJJe7ZOt8Vp/",
           "oldPrice": 300,
@@ -1088,7 +1094,6 @@
         6,
         9,
         11,
-        18,
         20
       ]
     },
@@ -1289,6 +1294,12 @@
       "photos": 20,
       "matched": [
         {
+          "photo": 8,
+          "post": "https://www.instagram.com/p/C_gRi5_NcSE/",
+          "oldPrice": 300,
+          "status": "available"
+        },
+        {
           "photo": 9,
           "post": "https://www.instagram.com/p/C_lM9UutG1a/",
           "oldPrice": 280,
@@ -1356,7 +1367,6 @@
         5,
         6,
         7,
-        8,
         10,
         13
       ]
