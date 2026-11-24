@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-24T16:22:25.272Z",
-  "finishedAt": "2026-11-24T16:30:22.422Z",
+  "startedAt": "2026-11-24T16:40:53.810Z",
+  "finishedAt": "2026-11-24T16:42:40.325Z",
   "ok": true,
   "error": null,
   "account": {
@@ -16,11 +16,11 @@
     "skippedNoPrice": 26
   },
   "images": {
-    "downloaded": 11323,
-    "reused": 0,
+    "downloaded": 1483,
+    "reused": 11323,
     "failed": 0,
     "removedDirs": 0,
-    "totalMB": 557
+    "totalMB": 671
   },
   "issues": {
     "noPrice": [
@@ -56,6 +56,7 @@
       "https://www.instagram.com/p/DeqlVlNDG50/",
       "https://www.instagram.com/p/DeMrxHpDEsW/",
       "https://www.instagram.com/p/Dd0iOWBjPZd/",
+      "https://www.instagram.com/p/DdolqcOjOuU/",
       "https://www.instagram.com/p/Da-doeoDEWh/",
       "https://www.instagram.com/p/DZ7kTOtDFXH/",
       "https://www.instagram.com/p/DZsUpRWDOSa/",
@@ -65,7 +66,10 @@
       "https://www.instagram.com/p/DZRgskhjPZx/",
       "https://www.instagram.com/p/DY6U7sIjJv4/",
       "https://www.instagram.com/p/DY46A8HDPZ8/",
+      "https://www.instagram.com/p/DX7BTUrDCKa/",
       "https://www.instagram.com/p/DW32xZYDMny/",
+      "https://www.instagram.com/p/DTN_I-DjLa9/",
+      "https://www.instagram.com/p/DSkddIhjNXl/",
       "https://www.instagram.com/p/DRFkc8JDCdS/",
       "https://www.instagram.com/p/DPovOlSDLjO/",
       "https://www.instagram.com/p/DPTyhEqDBN9/",
@@ -86,7 +90,6 @@
     "noBrand": [
       "https://www.instagram.com/p/DgITWoEESIH/",
       "https://www.instagram.com/p/DgIQBpSkZKr/",
-      "https://www.instagram.com/p/DgF-kT-EfJL/",
       "https://www.instagram.com/p/Df-HuaGkVtJ/",
       "https://www.instagram.com/p/Df-Dwkskaa-/",
       "https://www.instagram.com/p/Df7dpStkRls/",
