@@ -500,6 +500,9 @@
     // Нова картка — завжди з початку (на телефоні прокручується весь блок, на ПК — лише опис)
     $('product').querySelector('.product-info').scrollTop = 0;
     $('product').querySelector('.product-inner').scrollTop = 0;
+    // …і з першого фото: поки вікно було закрите, браузер ігнорував скидання прокрутки галереї
+    track.scrollTo({ left: 0, behavior: 'instant' });
+    requestAnimationFrame(() => track.scrollTo({ left: 0, behavior: 'instant' }));
   }
 
   // Розпродаж: текст і кнопка залежать від фото, яке зараз на екрані
