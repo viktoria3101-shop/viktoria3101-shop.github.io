@@ -478,7 +478,9 @@
 
     if (!dlg.open) dlg.showModal();
     document.body.style.overflow = 'hidden';
+    // Нова картка — завжди з початку (на телефоні прокручується весь блок, на ПК — лише опис)
     $('product').querySelector('.product-info').scrollTop = 0;
+    $('product').querySelector('.product-inner').scrollTop = 0;
   }
 
   function dmMessage(it, photo) {
