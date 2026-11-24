@@ -243,26 +243,47 @@
 
   const CYR_SIZE = { 'М': 'M', 'Л': 'L', 'С': 'S', 'Х': 'X', 'Ь': '' };
 
-  function parseSizes(lines) {
+  // Дістає розміри з фрагмента тексту після «Розмір …» / «Підійде на …»
+  function sizeTokens(value) {
     const out = [];
-    for (const line of lines) {
-      const m = line.match(/(?:^|\s)(?:розміри?|підійде\s+на|size)\s*[:\-–—]?\s+(.+)$/i);
-      if (!m) continue;
-      const tokens = m[1]
-        .toUpperCase()
-        .replace(/[МЛСХЬ]/g, ch => CYR_SIZE[ch])
-        .split(/[\/,\-–—\s]+|(?:\s+АБО\s+)/);
-      for (let t of tokens) {
-        t = t.replace(/[^A-Z0-9]/g, '');
-        if (t === 'XXXL') t = '3XL';
-        if (t === '2XL') t = 'XXL';
-        if (/^(XXS|XS|S|M|L|XL|XXL|[2-5]XL)$/.test(t) || /^\d{2}$/.test(t) || /^W\d{2}$/.test(t)) {
-          if (!out.includes(t)) out.push(t);
-        }
+    const tokens = value
+      .replace(/\d+(?:[.,]\d+)?\s*см/gi, ' ')       // «до 23,5 см» — це заміри, не розмір
+      .toUpperCase()
+      .split(/[\/,\-–—\s]+/);
+    for (let t of tokens) {
+      t = t.replace(/[()«»"'.!?:;]/g, '');
+      // Кирилиця дозволена лише як «М», «Л», «С», «ХЛ» — цілі слова («АЛЕ», «РОЗМІР») відкидаємо
+      if (/[А-ЯІЇЄҐ]/.test(t)) {
+        if (!/^[МЛСХ]+$/.test(t)) continue;
+        t = t.replace(/[МЛСХ]/g, ch => CYR_SIZE[ch]);
       }
-      if (/one\s*size|універсальн/i.test(m[1]) && !out.includes('ONE SIZE')) out.push('ONE SIZE');
+      t = t.replace(/[^A-Z0-9]/g, '');
+      if (t === 'XXXL') t = '3XL';
+      if (t === '2XL') t = 'XXL';
+      if (/^(XXS|XS|S|M|L|XL|XXL|[2-5]XL)$/.test(t) || /^\d{2}$/.test(t) || /^W\d{2}$/.test(t)) {
+        if (!out.includes(t)) out.push(t);
+      }
     }
+    if (/one\s*size|універсальн/i.test(value)) out.push('ONE SIZE');
     return out;
+  }
+
+  function parseSizes(lines) {
+    const label = [];   // «Розмір 38»
+    const fits = [];    // «Підійде на 37»
+    let misfit = false; // «маломірить», «великомірить», «вказано 38, але…»
+    // Кожне речення окремо: «Розмір вказано 38, але маломірять. Підійдуть на 37 розмір»
+    const sentences = lines.flatMap(l => l.replace(/([.!?;])\s+/g, '$1\n').split('\n'));
+    for (const s of sentences) {
+      if (/маломір|великомір|більшом|меншом/i.test(s)) misfit = true;
+      const fit = s.match(/(?:^|\s)підійд\S*\s+на\s+(.+)$/i);
+      if (fit) { fits.push(...sizeTokens(fit[1])); continue; }
+      const m = s.match(/(?:^|\s)(?:розміри?|size)\s*[:\-–—]?\s+(.+)$/i);
+      if (m) label.push(...sizeTokens(m[1]));
+    }
+    // Якщо річ маломірить/великомірить — важливо, на який розмір вона ПІДІЙДЕ
+    const all = misfit && fits.length ? fits : label.concat(fits);
+    return [...new Set(all)];
   }
 
   function parseBrand(firstLine) {
