@@ -27,10 +27,14 @@ const GRAPH = 'https://graph.facebook.com/' + (process.env.GRAPH_VERSION || 'v27
 const SHOP = { username: 'viktoria3101_shop', city: 'Київ' };
 
 const DATA_DIR = path.join(ROOT, 'data');
-const IMG_DIR = path.join(DATA_DIR, 'img', 'p');
-const MAX_PHOTOS = 12;      // максимум фото з однієї каруселі
-const FULL_WIDTH = 1000;    // фото в картці товару
+// Номер у назві папки: якщо змінити розміри/якість, достатньо збільшити його — фото перегенеруються.
+const IMG_VERSION = 'p2';
+const IMG_DIR = path.join(DATA_DIR, 'img', IMG_VERSION);
+const MAX_PHOTOS = 8;       // максимум фото з однієї каруселі (решта — в пості Instagram)
+const FULL_WIDTH = 960;     // фото в картці товару
+const FULL_QUALITY = 72;
 const THUMB_WIDTH = 480;    // фото в сітці каталогу
+const SIZE_WARN_MB = 850;   // GitHub Pages дозволяє сайт до 1 ГБ
 const PARALLEL = 6;
 
 const report = {
@@ -168,7 +172,7 @@ async function main() {
     p.urls.forEach((url, i) => {
       const file = path.join(dir, `${i}.webp`);
       p.files.push(file);
-      jobs.push({ url, dir, file, width: FULL_WIDTH, q: 75 });
+      jobs.push({ url, dir, file, width: FULL_WIDTH, q: FULL_QUALITY });
       if (i === 0) jobs.push({ url, dir, file: path.join(dir, 't.webp'), width: THUMB_WIDTH, q: 70 });
     });
   }
@@ -199,10 +203,19 @@ async function main() {
     const allowed = new Set(['t.webp', ...p.files.map(f => path.basename(f))]);
     for (const f of await fs.readdir(dir)) if (!allowed.has(f)) await fs.rm(path.join(dir, f), { force: true });
   }
-  // Тестові фото з макета більше не потрібні
+  // Тестові фото з макета і папки фото старих версій більше не потрібні
   for (const f of await fs.readdir(path.join(DATA_DIR, 'img'))) {
-    if (f.endsWith('.jpg')) await fs.rm(path.join(DATA_DIR, 'img', f), { force: true });
+    const full = path.join(DATA_DIR, 'img', f);
+    if (f.endsWith('.jpg') || (f !== IMG_VERSION && /^p\d*$/.test(f))) await fs.rm(full, { recursive: true, force: true });
   }
+  // Скільки місця займають фото
+  let bytes = 0;
+  for (const d of await fs.readdir(IMG_DIR)) {
+    for (const f of await fs.readdir(path.join(IMG_DIR, d))) bytes += (await fs.stat(path.join(IMG_DIR, d, f))).size;
+  }
+  report.images.totalMB = Math.round(bytes / 1048576);
+  log(`Фото займають ${report.images.totalMB} МБ`);
+  if (report.images.totalMB > SIZE_WARN_MB) log(`УВАГА: фото займають понад ${SIZE_WARN_MB} МБ — ліміт GitHub Pages 1 ГБ`);
 
   // Дані для сайту
   const rel = f => path.relative(ROOT, f).split(path.sep).join('/');
