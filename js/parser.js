@@ -30,6 +30,7 @@
   ];
 
   const SALE_RE = /розпрод/i;
+  const NEW_PRICE_LINE = /^(нова\s+ціна|ціна\s+знижена|знижка|акція)/i;
   const SALE_CATEGORY = 'Розпродаж';
 
   // Як бренди пишуть кирилицею → правильна назва
@@ -331,6 +332,7 @@
   function parseTitle(firstLine) {
     let t = (firstLine.replace(/¤/g, '').match(/^[^.!?]+/) || [firstLine])[0];
     t = t.split(/\s(?:від|бренду)\s/i)[0];
+    t = t.replace(/\s*[-–—,:]?\s*\d[\d\s]*\s*(?:грн|₴)\s*$/i, ''); // «Блуза 150 грн» → «Блуза»
     t = t.trim();
     if (t.length > 60) t = t.slice(0, 60).replace(/\s+\S*$/, '') + '…';
     return capitalize(t) || 'Товар';
@@ -392,13 +394,22 @@
     const caption = (post.caption || '').replace(/\r/g, '');
     const hashtags = (caption.match(/#[\p{L}\p{N}_]+/gu) || []).map(h => h.slice(1).toLowerCase());
     const textNoTags = caption.replace(/#[\p{L}\p{N}_]+/gu, '').trim();
-    const lines = textNoTags.split('\n').map(s => s.trim()).filter(Boolean);
+    const allLines = textNoTags.split('\n').map(s => s.trim()).filter(Boolean);
+    // «Нова ціна ✂️🔥180 грн🔥» першим рядком — це не назва речі, назва йде далі
+    const head = allLines.findIndex(l => !NEW_PRICE_LINE.test(stripEmoji(l).trim()));
+    const lines = head > 0 ? allLines.slice(head) : allLines;
     const firstLine = cleanFirstLine(lines[0] || '');
 
     const title = parseTitle(firstLine);
     const brand = parseBrand(firstLine);
     const status = parseStatus(caption, hashtags);
-    const price = parsePrice(caption);
+    // Ціна: «Нова ціна 180 грн» важливіша за стару «Ціна 250 грн» (стару покажемо закресленою)
+    const plain = stripEmoji(caption);
+    const nm = plain.match(/нова\s+ціна[^\d\n]{0,20}(\d[\d\s]*?)\s*(?:грн|₴)/i);
+    const newPrice = nm ? parseInt(nm[1].replace(/\s/g, ''), 10) : null;
+    const basePrice = parsePrice(plain.replace(/нова\s+ціна[^\n]*/gi, ''));
+    const price = newPrice != null ? newPrice : basePrice;
+    const discountOld = newPrice != null && basePrice != null && newPrice < basePrice ? basePrice : null;
     const sizes = parseSizes(lines);
     const color = parseColor(textNoTags);
     const materials = parseMaterials(textNoTags);
@@ -430,7 +441,7 @@
       category,
       status,
       price: onSale ? post.salePrice : price,
-      oldPrice: onSale ? price : null,
+      oldPrice: onSale ? (discountOld || price) : discountOld,
       onSale,
       saleFrom: onSale ? String(post.saleFrom) : null,
       isSale,
