@@ -483,7 +483,8 @@
       const badge = !st || st.kind === 'cover' ? ''
         : st.kind === 'sold' ? `<span class="g-item sold">Продано</span>`
         : st.kind === 'linked' ? `<a class="g-item" href="#p=${encodeURIComponent(st.linked.id)}">Ця річ окремо →</a>`
-        : `<span class="g-item avail">В наявності</span>`;
+        // окремого поста не знайдено і в підписі не позначено — можливо, вже продано
+        : `<span class="g-item ask">Уточніть наявність</span>`;
       return `<div class="g-slide"><img src="${esc(src)}" alt="${esc(it.title)} — фото ${i + 1}" loading="${i ? 'lazy' : 'eager'}">${badge}</div>`;
     }).join('');
     track.scrollLeft = 0;

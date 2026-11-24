@@ -169,11 +169,11 @@ async function matchSales(products) {
   report.sales = [];
   if (!sales.length) return;
 
-  // Відбитки перших 3 фото кожної звичайної речі
+  // Відбитки всіх фото кожної звичайної речі (у розпродаж мама іноді бере не перше фото)
   const index = [];
   for (const p of products) {
     if (p.isSale) continue;
-    for (const f of p.files.slice(0, 3)) {
+    for (const f of p.files) {
       if (!existsSync(f)) continue;
       try { index.push({ h: await dhash(f), p }); } catch { /* пошкоджене фото — пропускаємо */ }
     }

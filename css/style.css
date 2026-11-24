@@ -457,5 +457,5 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 
 /* Позначки на фото розпродажу */
 .g-item.sold { background: var(--sold); color: #fff; }
-.g-item.avail { background: #2f8a55; color: #fff; }
+.g-item.ask { background: rgba(20, 16, 14, .75); color: #fff; font-weight: 600; }
 .card-left { font-size: 12px; color: var(--muted); font-weight: 600; }
