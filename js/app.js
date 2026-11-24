@@ -434,6 +434,7 @@
 
     const specs = [];
     if (it.sizes.length) specs.push(['Розмір', esc(it.sizes.join(' / '))]);
+    if (it.condition) specs.push(['Стан', esc(it.condition)]);
     if (it.color) {
       const dot = it.color.hex && it.color.hex !== 'multi' ? `<span class="dot" style="background:${it.color.hex}"></span>` : '';
       specs.push(['Колір', dot + esc(it.color.raw.charAt(0).toUpperCase() + it.color.raw.slice(1))]);

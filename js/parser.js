@@ -420,13 +420,23 @@
     const isSale = !!post.isSale || SALE_RE.test(firstLine);
     const category = isSale ? SALE_CATEGORY : cat ? cat[0] : 'Інше';
 
-    // Опис: усе, що не ціна, не заміри, не стандартні застереження.
+    // Стан речі: «Стан чудовий, без дефектів» → «Чудовий, без дефектів»; «Нова, з етикеткою» — як є
+    const condIdx = lines.findIndex((l, i) => i > 0 && /^стан[\s:]/i.test(l));
+    const altIdx = condIdx < 0
+      ? lines.findIndex((l, i) => i > 0 && l.length <= 90 && /^([а-яіїєґ'ʼ’-]+\s+)?нов(а|ий|е|і)([\s,.!]|$)/i.test(l))
+      : -1;
+    const ci = condIdx >= 0 ? condIdx : altIdx;
+    const condition = ci < 0 ? null
+      : capitalize(lines[ci].replace(/^стан\s*:?\s*/i, '').replace(/[.\s]+$/, ''));
+
+    // Опис: усе, що не ціна, не заміри, не стан, не стандартні застереження.
     const measureLines = new Set(lines.filter(l => parseMeasurements([l]).length));
     const details = lines
       .map((l, i) => (i === 0 ? firstLine : l))
       .filter((l, i) => {
         if (!l) return false;
         if (i === 0 && l.length <= 70) return false; // короткий перший рядок = заголовок
+        if (i === ci) return false;                   // стан показуємо вгорі
         if (measureLines.has(l)) return false;
         return !BOILERPLATE.some(re => re.test(stripEmoji(l).trim()));
       });
@@ -449,6 +459,7 @@
       // «Фото 2 - Продано», «Фото -7 Продано», «Фото 4 - Продана (зелена блуза)» → [2, 7, 4]
       soldPhotos: isSale ? parseSoldPhotos(caption) : null,
       sizes: isSale ? [] : sizes,
+      condition: isSale ? null : condition,
       color,
       materials,
       measurements,
