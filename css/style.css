@@ -373,3 +373,19 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
   font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
 }
 .g-more:hover { background: rgba(20, 16, 14, .9); }
+
+/* ---------- Доставка й оплата в картці ---------- */
+.p-shipping { margin: 0 0 22px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; display: grid; gap: 10px; font-size: 14px; }
+.p-shipping > div { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: start; }
+.p-shipping dt { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
+.p-shipping dt svg { width: 18px; height: 18px; }
+.p-shipping dd { margin: 0; color: var(--ink-2); }
+
+/* ---------- Підвал ---------- */
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px 28px; }
+.footer-grid h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+.footer-grid p { margin: 0; color: var(--ink-2); }
+.footer-note { margin-top: 18px !important; font-size: 13px; }
+@media (max-width: 520px) {
+  .p-shipping > div { grid-template-columns: 1fr; gap: 2px; }
+}

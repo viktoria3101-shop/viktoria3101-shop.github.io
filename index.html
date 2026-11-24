@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=13">
+  <link rel="stylesheet" href="css/style.css?v=15">
   <script>
     // Застосовуємо збережену тему ще до показу сторінки (щоб не «блимало»)
     try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
@@ -88,9 +88,26 @@
   </main>
 
   <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <section>
+        <h2>Як купити</h2>
+        <p>Оберіть річ і натисніть «Скопіювати текст і написати» — відкриється директ магазину в Instagram.</p>
+      </section>
+      <section>
+        <h2>Доставка</h2>
+        <p>Нова Пошта або Укрпошта.<br>Відправка протягом 1–2 днів.</p>
+      </section>
+      <section>
+        <h2>Оплата</h2>
+        <p>Переказ на картку ПриватБанку.<br>Накладеним платежем не відправляємо.</p>
+      </section>
+      <section>
+        <h2>Обмін</h2>
+        <p>Обмін та повернення не передбачено. Будь ласка, звіряйте заміри.</p>
+      </section>
+    </div>
     <div class="wrap">
-      <p>Каталог оновлюється автоматично з Instagram. Щоб купити — напишіть у директ.</p>
-      <p class="muted">Обмін та повернення не передбачено. Будь ласка, звіряйте заміри.</p>
+      <p class="muted footer-note">Каталог оновлюється автоматично з Instagram.</p>
     </div>
   </footer>
 
@@ -122,21 +139,34 @@
           </a>
           <a class="p-plain-link" id="pWritePlain" href="#" target="_blank" rel="noopener">Написати без копіювання</a>
         </div>
+        <dl class="p-shipping">
+          <div>
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg>Доставка</dt>
+            <dd>Нова Пошта або Укрпошта. Відправка протягом 1–2 днів.</dd>
+          </div>
+          <div>
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Оплата</dt>
+            <dd>Переказ на картку ПриватБанку. Накладеним платежем не відправляємо.</dd>
+          </div>
+          <div>
+            <dt><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M12 8v5M12 16v.5"/></svg>Обмін</dt>
+            <dd>Обмін та повернення не передбачено — звіряйте заміри.</dd>
+          </div>
+        </dl>
         <div class="p-measure" id="pMeasureWrap">
           <h3>Заміри</h3>
           <table id="pMeasure"></table>
         </div>
         <div class="p-details" id="pDetails"></div>
         <a class="p-post-link" id="pPost" href="#" target="_blank" rel="noopener">Переглянути пост в Instagram →</a>
-        <p class="p-note">Обмін та повернення не передбачено. Уточнюйте інформацію та звіряйте заміри.</p>
       </div>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/posts.js?v=13"></script>
-  <script src="js/parser.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
+  <script src="data/posts.js?v=15"></script>
+  <script src="js/parser.js?v=15"></script>
+  <script src="js/app.js?v=15"></script>
 </body>
 </html>

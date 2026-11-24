@@ -303,6 +303,7 @@
 
   // Показуємо товари порціями, щоб сторінка з 1000+ постів не гальмувала
   const PAGE = 40;
+  const AUTO_LOAD_LIMIT = 120;
   let currentList = [];
   let shown = 0;
 
@@ -340,7 +341,8 @@
   // Автопідвантаження, коли покупець догортав до кінця списку
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(entries => {
-      if (entries.some(e => e.isIntersecting) && shown < currentList.length) showMore();
+      // Автоматично — лише перші ~120 товарів, далі кнопкою: інакше до низу сайту (доставка, оплата) не догорнути
+      if (entries.some(e => e.isIntersecting) && shown < currentList.length && shown < AUTO_LOAD_LIMIT) showMore();
     }, { rootMargin: '600px 0px' }).observe($('moreWrap'));
   }
 
