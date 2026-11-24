@@ -354,3 +354,12 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 /* ---------- Показати ще ---------- */
 .more { display: flex; justify-content: center; padding: 28px 0 4px; }
 .more .btn { min-width: 220px; }
+
+/* Кнопка «Усі бренди» */
+.f-more { border: 0; background: none; padding: 6px 0 0; color: var(--accent); font-weight: 600; font-size: 14px; cursor: pointer; }
+.f-more:hover { text-decoration: underline; }
+
+/* На комп'ютері категорії переносяться в кілька рядків — без гортання вбік */
+@media (min-width: 861px) {
+  .categories { flex-wrap: wrap; overflow: visible; }
+}

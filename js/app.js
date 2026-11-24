@@ -33,17 +33,18 @@
     colors: P.COLORS.filter(([name]) => items.some(it => it.color && it.color.name === name)),
     materials: [...new Set(items.flatMap(it => it.materials))].sort((a, b) => a.localeCompare(b, 'uk')),
     prices: items.map(it => it.price).filter(p => p != null),
+    categories: P.CATEGORIES.filter(c => items.some(it => it.category === c)),
   };
 
   const state = {
-    q: '', category: null, sort: 'new', showSold: false,
-    sizes: new Set(), brands: new Set(), colors: new Set(), materials: new Set(),
+    q: '', sort: 'new', showSold: false,
+    categories: new Set(), sizes: new Set(), brands: new Set(), colors: new Set(), materials: new Set(),
     min: null, max: null,
   };
 
   function matches(it, skip) {
     if (!state.showSold && it.status === 'sold') return false;
-    if (skip !== 'category' && state.category && it.category !== state.category) return false;
+    if (skip !== 'category' && state.categories.size && !state.categories.has(it.category)) return false;
     if (skip !== 'sizes' && state.sizes.size && !it.sizes.some(s => state.sizes.has(s))) return false;
     if (skip !== 'brands' && state.brands.size && !state.brands.has(it.brand)) return false;
     if (skip !== 'colors' && state.colors.size && !(it.color && state.colors.has(it.color.name))) return false;
@@ -66,7 +67,7 @@
   }
 
   function activeFilterCount() {
-    return state.sizes.size + state.brands.size + state.colors.size + state.materials.size +
+    return state.categories.size + state.sizes.size + state.brands.size + state.colors.size + state.materials.size +
       (state.min != null ? 1 : 0) + (state.max != null ? 1 : 0) + (state.showSold ? 1 : 0);
   }
 
@@ -92,20 +93,26 @@
   function renderCategories() {
     const counts = countBy('category', it => [it.category]);
     const total = items.filter(it => matches(it, 'category')).length;
-    const cats = P.CATEGORIES.filter(c => counts.get(c) || state.category === c);
+    const cats = P.CATEGORIES.filter(c => counts.get(c) || state.categories.has(c));
     $('categories').innerHTML =
-      `<button type="button" class="chip" data-cat="" aria-pressed="${!state.category}">Усі<span class="count">${total}</span></button>` +
-      cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${state.category === c}">${esc(c)}<span class="count">${counts.get(c) || 0}</span></button>`).join('');
+      `<button type="button" class="chip" data-cat="" aria-pressed="${!state.categories.size}">Усі<span class="count">${total}</span></button>` +
+      cats.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${state.categories.has(c)}">${esc(c)}<span class="count">${counts.get(c) || 0}</span></button>`).join('');
   }
 
   $('categories').addEventListener('click', e => {
     const b = e.target.closest('[data-cat]');
     if (!b) return;
-    state.category = b.dataset.cat || null;
+    const c = b.dataset.cat;
+    const onlyThis = state.categories.size === 1 && state.categories.has(c);
+    state.categories.clear();
+    if (c && !onlyThis) state.categories.add(c);
     update();
   });
 
   // ---------- Фільтри ----------
+
+  const BRANDS_VISIBLE = 8;
+  let brandsExpanded = false;
 
   function buildFilters() {
     const minP = Math.min(...ALL.prices), maxP = Math.max(...ALL.prices);
@@ -119,9 +126,15 @@
         <label class="f-price-field"><span>від</span><input type="number" inputmode="numeric" id="priceMin" placeholder="${minP}" min="0" aria-label="Ціна від"></label>
         <label class="f-price-field"><span>до</span><input type="number" inputmode="numeric" id="priceMax" placeholder="${maxP}" min="0" aria-label="Ціна до"></label>
       </div></div>`);
+    if (ALL.categories.length) {
+      groups.push(`<div class="f-group"><h3>Категорія</h3>` +
+        ALL.categories.map(c => `<label class="f-check"><input type="checkbox" data-category="${esc(c)}"><span>${esc(c)}</span><span class="count" data-count-category="${esc(c)}"></span></label>`).join('') +
+        `</div>`);
+    }
     if (ALL.brands.length) {
       groups.push(`<div class="f-group"><h3>Бренд</h3>` +
-        ALL.brands.map(b => `<label class="f-check"><input type="checkbox" data-brand="${esc(b)}"><span>${esc(b)}</span><span class="count" data-count-brand="${esc(b)}"></span></label>`).join('') +
+        ALL.brands.map((b, i) => `<label class="f-check"${i >= BRANDS_VISIBLE ? ' data-extra' : ''}><input type="checkbox" data-brand="${esc(b)}"><span>${esc(b)}</span><span class="count" data-count-brand="${esc(b)}"></span></label>`).join('') +
+        (ALL.brands.length > BRANDS_VISIBLE ? `<button type="button" class="f-more" id="brandsMore"></button>` : '') +
         `</div>`);
     }
     if (ALL.colors.length) {
@@ -147,6 +160,20 @@
       b.disabled = !sizeCounts.get(s) && !state.sizes.has(s);
       b.style.opacity = b.disabled ? .35 : '';
     });
+    const catCounts = countBy('category', it => [it.category]);
+    body.querySelectorAll('[data-category]').forEach(cb => {
+      const c = cb.dataset.category;
+      cb.checked = state.categories.has(c);
+      const n = catCounts.get(c) || 0;
+      body.querySelector(`[data-count-category="${CSS.escape(c)}"]`).textContent = n;
+      cb.closest('label').style.opacity = n || cb.checked ? '' : .4;
+    });
+    body.querySelectorAll('label[data-extra]').forEach(l => {
+      l.hidden = !brandsExpanded && !l.querySelector('input').checked;
+    });
+    if ($('brandsMore')) {
+      $('brandsMore').textContent = brandsExpanded ? 'Згорнути' : `Усі бренди (${ALL.brands.length})`;
+    }
     const brandCounts = countBy('brands', it => [it.brand]);
     body.querySelectorAll('[data-brand]').forEach(cb => {
       const b = cb.dataset.brand;
@@ -186,11 +213,13 @@
     const size = e.target.closest('[data-size]');
     const color = e.target.closest('[data-color]');
     if (size) { toggleIn(state.sizes, size.dataset.size); update(); }
+    if (e.target.id === 'brandsMore') { brandsExpanded = !brandsExpanded; syncFilters(); }
     if (color) { toggleIn(state.colors, color.dataset.color); update(); }
   });
   $('filtersBody').addEventListener('change', e => {
     const t = e.target;
-    if (t.dataset.brand) toggleIn(state.brands, t.dataset.brand);
+    if (t.dataset.category) toggleIn(state.categories, t.dataset.category);
+    else if (t.dataset.brand) toggleIn(state.brands, t.dataset.brand);
     else if (t.dataset.material) toggleIn(state.materials, t.dataset.material);
     else if (t.id === 'showSold') state.showSold = t.checked;
     else return;
@@ -209,8 +238,8 @@
   });
 
   function resetFilters() {
-    Object.assign(state, { category: null, min: null, max: null, showSold: false, q: '' });
-    state.sizes.clear(); state.brands.clear(); state.colors.clear(); state.materials.clear();
+    Object.assign(state, { min: null, max: null, showSold: false, q: '' });
+    state.categories.clear(); state.sizes.clear(); state.brands.clear(); state.colors.clear(); state.materials.clear();
     $('search').value = '';
     update();
   }
