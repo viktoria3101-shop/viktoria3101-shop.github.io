@@ -395,3 +395,11 @@ a, button, label, input, select { -webkit-tap-highlight-color: transparent; }
 .chip-sold[aria-pressed="true"] { background: var(--sold); border-color: var(--sold); color: #fff; }
 .chip-sold[aria-pressed="true"] .count { color: rgba(255, 255, 255, .75); }
 .f-sold { margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); }
+
+/* Пошук бренду у фільтрах */
+.f-search {
+  width: 100%; height: 36px; margin: 0 0 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--ink); outline: 0;
+}
+.f-search:focus { border-color: var(--accent); }
+.swatch[hidden] { display: none; }

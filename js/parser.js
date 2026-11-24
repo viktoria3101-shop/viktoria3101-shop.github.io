@@ -164,8 +164,9 @@
   }
 
   // Короткі/альтернативні назви → як показувати на сайті
-  const BRAND_CANON = { 'M&S': 'Marks & Spencer', 'Osprey': 'Osprey London' };
+  const BRAND_CANON = { 'M&S': 'Marks & Spencer', 'Osprey': 'Osprey London', 'Weekend': 'Weekend Max Mara', 'Lands End': "Lands' End" };
   BRANDS.push('M&S', 'Osprey', 'F&F', 'Primark', 'Autograph', 'New Look', 'George', 'Paul Costelloe',
+    'Kenneth Cole', 'Lands End', 'Weekend', 'Hotter', 'Ara',
     'Monki', 'Bershka', 'Pull&Bear', 'Stradivarius', 'Oysho', 'Joules', 'Jack Wills');
   const canon = name => BRAND_CANON[name] || name;
 
@@ -181,7 +182,11 @@
     let best = null;
     for (let n = 1; n <= Math.min(4, words.length); n++) {
       const phrase = words.slice(0, n).join(' ');
-      const keys = [...new Set([squash(phrase), squash(phrase, true)])].filter(Boolean);
+      // «¤» — емодзі замість літери («Zar🌺» → Zara): пробуємо підставити голосні
+      const variants = phrase.includes('¤')
+        ? ['a', 'o', 'e', 'i', 'u', 's', ''].map(ch => phrase.split('¤').join(ch))
+        : [phrase];
+      const keys = [...new Set(variants.flatMap(v => [squash(v), squash(v, true)]))].filter(Boolean);
       for (const b of BRAND_INDEX) for (const key of keys) {
         const dist = levenshtein(key, b.key);
         const limit = exactOnly ? 0 : allowedTypos(b.key.length);
@@ -228,7 +233,8 @@
   }
 
   function cleanFirstLine(line) {
-    return stripEmoji(line)
+    // Емодзі, що стоїть впритул до латинської літери, — це замаскована літера бренду («Zar🌺»)
+    return stripEmoji(line.replace(/([a-z])[\p{Extended_Pictographic}️‍]+/giu, '$1¤'))
       .replace(/(^|\s)(продано|заброньовано|бронь|резерв)(?=[\s.!,:]|$)[.!,:]?/gi, ' ')
       .replace(/\s+/g, ' ')
       .trim();
@@ -300,7 +306,10 @@
         if (/[а-яіїєґ]/i.test(w) || !/[a-z0-9]/i.test(w)) break;
         latin.push(w);
       }
-      const clean = latin.slice(0, 3).join(' ').replace(/['’ʼ`]s$/i, '').trim();
+      const clean = latin.slice(0, 3).join(' ')
+        .replace(/¤/g, '')
+        .replace(/([a-z]{2,})['’ʼ`]([a-z]{2,})/gi, '$1$2') // Ken'neth → Kenneth (маскування апострофом)
+        .replace(/['’ʼ`]s$/i, '').trim();
       if (clean.length >= 2) return titleCase(clean);
     }
     // Бренд кирилицею («від Зара»)
@@ -317,7 +326,7 @@
   }
 
   function parseTitle(firstLine) {
-    let t = (firstLine.match(/^[^.!?]+/) || [firstLine])[0];
+    let t = (firstLine.replace(/¤/g, '').match(/^[^.!?]+/) || [firstLine])[0];
     t = t.split(/\s(?:від|бренду)\s/i)[0];
     t = t.trim();
     if (t.length > 60) t = t.slice(0, 60).replace(/\s+\S*$/, '') + '…';

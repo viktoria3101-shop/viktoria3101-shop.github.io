@@ -128,6 +128,7 @@
   // Літерні розміри показуємо завжди; числові (36, 38…, взуття) — лише в межах обраної категорії
   const LETTER_SIZES = new Set(['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL', 'ONE SIZE']);
   let brandsExpanded = false;
+  let brandQuery = '';
 
   function buildFilters() {
     const minP = Math.min(...ALL.prices), maxP = Math.max(...ALL.prices);
@@ -149,7 +150,12 @@
     }
     if (ALL.brands.length) {
       groups.push(`<div class="f-group"><h3>Бренд</h3>` +
-        ALL.brands.map((b, i) => `<label class="f-check"${i >= BRANDS_VISIBLE ? ' data-extra' : ''}><input type="checkbox" data-brand="${esc(b)}"><span>${esc(b)}</span><span class="count" data-count-brand="${esc(b)}"></span></label>`).join('') +
+        (ALL.brands.length > BRANDS_VISIBLE
+          ? `<input type="search" class="f-search" id="brandSearch" placeholder="Пошук бренду…" autocomplete="off" aria-label="Пошук бренду">`
+          : '') +
+        `<div id="brandList">` +
+        ALL.brands.map(b => `<label class="f-check"><input type="checkbox" data-brand="${esc(b)}"><span>${esc(b)}</span><span class="count" data-count-brand="${esc(b)}"></span></label>`).join('') +
+        `</div><p class="f-hint" id="brandEmpty" hidden>Такого бренду зараз немає</p>` +
         (ALL.brands.length > BRANDS_VISIBLE ? `<button type="button" class="f-more" id="brandsMore"></button>` : '') +
         `</div>`);
     }
@@ -185,28 +191,40 @@
       cb.checked = state.categories.has(c);
       const n = catCounts.get(c) || 0;
       body.querySelector(`[data-count-category="${CSS.escape(c)}"]`).textContent = n;
-      cb.closest('label').style.opacity = n || cb.checked ? '' : .4;
+      cb.closest('label').hidden = !n && !cb.checked; // категорії без товарів ховаємо
     });
-    body.querySelectorAll('label[data-extra]').forEach(l => {
-      l.hidden = !brandsExpanded && !l.querySelector('input').checked;
-    });
-    if ($('brandsMore')) {
-      $('brandsMore').textContent = brandsExpanded ? 'Згорнути' : `Усі бренди (${ALL.brands.length})`;
-    }
+
+    // Бренди: лише ті, що є в поточній вибірці; найпопулярніші зверху; пошук по назві
     const brandCounts = countBy('brands', it => [it.brand]);
-    body.querySelectorAll('[data-brand]').forEach(cb => {
+    const q = brandQuery.trim().toLowerCase();
+    const rows = [...body.querySelectorAll('#brandList label')].map(label => {
+      const cb = label.querySelector('input');
       const b = cb.dataset.brand;
-      cb.checked = state.brands.has(b);
       const n = brandCounts.get(b) || 0;
-      body.querySelector(`[data-count-brand="${CSS.escape(b)}"]`).textContent = n;
-      cb.closest('label').style.opacity = n || cb.checked ? '' : .4;
+      cb.checked = state.brands.has(b);
+      label.querySelector('.count').textContent = n;
+      const show = (n > 0 || cb.checked) && (!q || b.toLowerCase().includes(q));
+      return { label, b, n, checked: cb.checked, show };
     });
+    const brandRows = rows.filter(r => r.show)
+      .sort((a, b) => (b.checked - a.checked) || (b.n - a.n) || a.b.localeCompare(b.b));
+    const limit = brandsExpanded || q ? Infinity : BRANDS_VISIBLE;
+    const list = $('brandList');
+    if (list) {
+      brandRows.forEach((r, i) => { r.label.hidden = i >= limit && !r.checked; list.appendChild(r.label); });
+      rows.filter(r => !r.show).forEach(r => { r.label.hidden = true; });
+      $('brandEmpty').hidden = !(q && !brandRows.length);
+    }
+    if ($('brandsMore')) {
+      $('brandsMore').hidden = !!q || brandRows.length <= BRANDS_VISIBLE;
+      $('brandsMore').textContent = brandsExpanded ? 'Згорнути' : `Усі бренди (${brandRows.length})`;
+    }
     const colorCounts = countBy('colors', it => [it.color && it.color.name]);
     body.querySelectorAll('[data-color]').forEach(b => {
       const c = b.dataset.color;
       b.setAttribute('aria-pressed', state.colors.has(c));
       b.title = `${c} (${colorCounts.get(c) || 0})`;
-      b.style.opacity = colorCounts.get(c) || state.colors.has(c) ? '' : .3;
+      b.hidden = !colorCounts.get(c) && !state.colors.has(c);
     });
     const matCounts = countBy('materials', it => it.materials);
     body.querySelectorAll('[data-material]').forEach(cb => {
@@ -214,7 +232,7 @@
       cb.checked = state.materials.has(m);
       const n = matCounts.get(m) || 0;
       body.querySelector(`[data-count-material="${CSS.escape(m)}"]`).textContent = n;
-      cb.closest('label').style.opacity = n || cb.checked ? '' : .4;
+      cb.closest('label').hidden = !n && !cb.checked;
     });
     if ($('soldOnly')) {
       $('soldOnly').checked = state.soldOnly;
@@ -249,6 +267,7 @@
   });
   let priceTimer;
   $('filtersBody').addEventListener('input', e => {
+    if (e.target.id === 'brandSearch') { brandQuery = e.target.value; syncFilters(); return; }
     if (e.target.id !== 'priceMin' && e.target.id !== 'priceMax') return;
     clearTimeout(priceTimer);
     priceTimer = setTimeout(() => {
@@ -263,6 +282,8 @@
     Object.assign(state, { min: null, max: null, soldOnly: false, q: '' });
     state.categories.clear(); state.sizes.clear(); state.brands.clear(); state.colors.clear(); state.materials.clear();
     $('search').value = '';
+    brandQuery = '';
+    if ($('brandSearch')) $('brandSearch').value = '';
     update();
   }
   $('resetFilters').addEventListener('click', resetFilters);
