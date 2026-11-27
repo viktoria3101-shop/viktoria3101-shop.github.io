@@ -8,8 +8,21 @@
   const PROFILE_URL = 'https://www.instagram.com/' + USER + '/';
 
   const $ = id => document.getElementById(id);
-  // Подія для статистики Umami (якщо лічильник не завантажився — просто нічого не робимо)
-  const stat = (name, data) => { try { if (window.umami) window.umami.track(name, data); } catch (e) {} };
+  // Подія для статистики Umami. Лічильник вантажиться пізніше за сайт: якщо його ще немає
+  // (напр., сторінку відкрили одразу з #p=…), подія чекає в черзі до ~15 с, потім відкидається.
+  const statQueue = [];
+  let statTimer = null;
+  const statFlush = (tries) => {
+    try {
+      if (window.umami) { while (statQueue.length) window.umami.track(...statQueue.shift()); statTimer = null; return; }
+    } catch (e) { statQueue.length = 0; statTimer = null; return; }
+    if (tries <= 0) { statQueue.length = 0; statTimer = null; return; }
+    statTimer = setTimeout(() => statFlush(tries - 1), 500);
+  };
+  const stat = (name, data) => {
+    statQueue.push([name, data]);
+    if (!statTimer) statFlush(30);
+  };
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const money = n => (n == null ? 'Ціну уточнюйте' : n.toLocaleString('uk-UA') + ' грн');
   const plural = (n, one, few, many) => {
