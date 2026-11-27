@@ -5,7 +5,7 @@ window.SHOP_DATA = {
   "username": "viktoria3101_shop",
   "city": "Київ"
  },
- "updatedAt": "2026-11-27T01:42:17.654Z",
+ "updatedAt": "2026-11-27T04:27:37.308Z",
  "posts": [
   {
    "id": "18109985885631195",
