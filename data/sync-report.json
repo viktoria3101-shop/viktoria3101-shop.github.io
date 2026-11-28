@@ -1,6 +1,6 @@
 {
-  "startedAt": "2026-11-28T10:06:47.898Z",
-  "finishedAt": "2026-11-28T10:09:56.959Z",
+  "startedAt": "2026-11-28T13:19:26.199Z",
+  "finishedAt": "2026-11-28T13:21:14.301Z",
   "ok": true,
   "error": null,
   "account": {
@@ -19,7 +19,7 @@
     "downloaded": 0,
     "reused": 12795,
     "failed": 0,
-    "removedDirs": 1,
+    "removedDirs": 0,
     "totalMB": 668
   },
   "issues": {
