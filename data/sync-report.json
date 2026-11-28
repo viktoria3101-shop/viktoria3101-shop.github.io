@@ -1,26 +1,26 @@
 {
-  "startedAt": "2026-11-28T04:15:52.819Z",
-  "finishedAt": "2026-11-28T04:17:49.798Z",
+  "startedAt": "2026-11-28T07:33:30.499Z",
+  "finishedAt": "2026-11-28T07:36:21.690Z",
   "ok": true,
   "error": null,
   "account": {
     "username": "viktoria3101_shop",
-    "mediaCount": 1413
+    "mediaCount": 1412
   },
   "totals": {
-    "posts": 1418,
-    "products": 1390,
-    "available": 1262,
+    "posts": 1417,
+    "products": 1389,
+    "available": 1258,
     "reserved": 7,
-    "sold": 121,
+    "sold": 124,
     "skippedNoPrice": 28
   },
   "images": {
     "downloaded": 0,
-    "reused": 12844,
+    "reused": 12806,
     "failed": 0,
-    "removedDirs": 0,
-    "totalMB": 670
+    "removedDirs": 1,
+    "totalMB": 668
   },
   "issues": {
     "noPrice": [
@@ -94,7 +94,6 @@
       "https://www.instagram.com/p/DgQFMzKnEY5/",
       "https://www.instagram.com/p/DgQFBJBHG5L/",
       "https://www.instagram.com/p/DgNl--xEZbi/",
-      "https://www.instagram.com/p/DgNidoyEQiv/",
       "https://www.instagram.com/p/DgK4y0nEesZ/",
       "https://www.instagram.com/p/DgITWoEESIH/",
       "https://www.instagram.com/p/DgIQBpSkZKr/",
@@ -211,7 +210,6 @@
       "https://www.instagram.com/p/DdHStr-HI4k/",
       "https://www.instagram.com/p/DdHOqOnHAxv/",
       "https://www.instagram.com/p/DdEseV4DGZG/",
-      "https://www.instagram.com/p/DdEq0knjInf/",
       "https://www.instagram.com/p/DdCK-P5DMNP/",
       "https://www.instagram.com/p/DdCFJTrjEF0/",
       "https://www.instagram.com/p/DdB_Yj3DMdB/",
